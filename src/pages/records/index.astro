@@ -1,0 +1,518 @@
+---
+/**
+ * 记录列表页 - 时间线视图和日历视图
+ * 支持点击日历日期展开记录内容
+ */
+import { getCollection, render } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Nav from '../../components/Nav.astro';
+import Calendar from '../../components/Calendar.astro';
+import Stats from '../../components/Stats.astro';
+import { SITE_TITLE } from '../../consts';
+
+// 获取所有记录
+let records: Array<{ id: string; data: { date: Date }; body?: string }> = [];
+let categories: string[] = [];
+try {
+  const allRecords = await getCollection('records');
+  records = allRecords.sort(
+    (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+  );
+  categories = [...new Set(records.map(r => r.id.split('/')[0]))];
+} catch (e) {
+  console.log('No records found');
+}
+
+// 预渲染所有记录
+const renderedRecords = await Promise.all(
+  records.map(async (record) => {
+    const { Content } = await render(record);
+    return { ...record, Content };
+  })
+);
+
+// 计算连续记录天数
+function calculateStreak(dates: Date[]): number {
+  if (dates.length === 0) return 0;
+  const sortedDates = dates
+    .map(d => d.toDateString())
+    .filter((v, i, a) => a.indexOf(v) === i)
+    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+  let streak = 1;
+  for (let i = 0; i < sortedDates.length - 1; i++) {
+    const current = new Date(sortedDates[i]);
+    const next = new Date(sortedDates[i + 1]);
+    const diff = Math.floor((current.getTime() - next.getTime()) / (1000 * 60 * 60 * 24));
+    if (diff === 1) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+// 计算统计数据
+const stats = {
+  total: records.length,
+  byCategory: categories.map(c => ({
+    name: c,
+    count: records.filter(r => r.id.startsWith(c + '/')).length
+  })),
+  streak: calculateStreak(records.map(r => r.data.date))
+};
+
+// 格式化日期
+function formatDate(date: Date): string {
+  return `${date.getMonth() + 1}月${date.getDate()}日`;
+}
+
+// URL 编码 ID
+function encodeId(id: string): string {
+  return id.split('/').map(part => encodeURIComponent(part)).join('/');
+}
+
+// 从 ID 提取分类
+function getCategory(id: string): string {
+  return id.split('/')[0];
+}
+
+// 为时间线视图中的每条记录创建唯一 ID
+const getRecordId = (index: number) => `record-${index}`;
+
+// 日历数据 - 只包含基本元数据
+const today = new Date();
+const currentYear = today.getFullYear();
+const currentMonth = today.getMonth();
+
+const calendarRecordsData = records.map((r, index) => ({
+  recordId: getRecordId(index),
+  date: r.data.date.toDateString(),
+  category: r.id.split('/')[0],
+  formattedDate: formatDate(r.data.date),
+  detailUrl: `/records/${encodeId(r.id)}`
+}));
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={`记录 - ${SITE_TITLE}`} description="我的日常记录" />
+  </head>
+  <body class="bg-warm-white min-h-screen">
+    <Nav />
+
+    <main class="max-w-6xl mx-auto px-6 py-12">
+      <header class="mb-8">
+        <h1 class="text-4xl font-serif text-warm-brown mb-4">记录</h1>
+        <p class="text-warm-gray">记录生活的点滴</p>
+      </header>
+
+      <!-- 视图切换 -->
+      <div class="flex gap-4 mb-6" id="view-toggle">
+        <button
+          data-view="timeline"
+          class="px-4 py-2 rounded-lg transition-colors bg-warm-orange text-white"
+        >
+          时间线
+        </button>
+        <button
+          data-view="calendar"
+          class="px-4 py-2 rounded-lg transition-colors bg-warm-beige text-warm-brown hover:bg-warm-orange/20"
+        >
+          日历
+        </button>
+      </div>
+
+      <div class="flex gap-8">
+        <!-- 左侧：分类导航 + 统计 -->
+        <aside class="w-48 flex-shrink-0">
+          <div class="category-nav mb-8">
+            <h3 class="text-lg font-serif text-warm-brown mb-4">分类</h3>
+            <ul class="space-y-2" id="category-nav">
+              <li>
+                <button
+                  data-category=""
+                  class="w-full text-left py-2 px-3 rounded-lg transition-colors bg-warm-orange text-white"
+                >
+                  全部
+                </button>
+              </li>
+              {categories.map((category) => (
+                <li>
+                  <button
+                    data-category={category}
+                    class="w-full text-left py-2 px-3 rounded-lg transition-colors text-warm-gray hover:bg-warm-beige"
+                  >
+                    {category}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <Stats stats={stats} />
+        </aside>
+
+        <!-- 右侧：内容区 -->
+        <div class="flex-1">
+          <!-- 时间线视图 -->
+          <div id="timeline-view">
+            <div class="records-list space-y-4">
+              {renderedRecords.map((record, index) => (
+                <article
+                  id={getRecordId(index)}
+                  class="record-card bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow"
+                  data-category={getCategory(record.id)}
+                  data-date={record.data.date.toDateString()}
+                  data-category-name={getCategory(record.id)}
+                  data-detail-url={`/records/${encodeId(record.id)}`}
+                >
+                  <div class="flex items-center gap-3 mb-3">
+                    <time class="text-sm text-warm-gray">
+                      {formatDate(record.data.date)}
+                    </time>
+                    <span class="text-xs px-2 py-1 bg-warm-beige text-warm-brown rounded-full">
+                      {getCategory(record.id)}
+                    </span>
+                  </div>
+                  <div class="prose prose-warm max-w-none text-warm-gray leading-relaxed">
+                    <record.Content />
+                  </div>
+                  <a
+                    href={`/records/${encodeId(record.id)}`}
+                    class="inline-block mt-3 text-sm text-warm-orange hover:text-warm-brown transition-colors"
+                  >
+                    查看详情
+                  </a>
+                </article>
+              ))}
+            </div>
+            <div id="no-records" class="text-center py-16 text-warm-gray hidden">
+              暂无记录
+            </div>
+          </div>
+
+          <!-- 日历视图 -->
+          <div id="calendar-view" class="hidden">
+            <Calendar records={records} />
+
+            <!-- 日历记录展开区域 -->
+            <div id="calendar-records-panel" class="mt-6 hidden">
+              <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-lg font-serif text-warm-brown" id="selected-date-title">
+                    选中日期的记录
+                  </h3>
+                  <button id="close-calendar-panel" class="text-warm-gray hover:text-warm-orange text-xl px-2">
+                    ✕
+                  </button>
+                </div>
+                <div id="calendar-records-content" class="space-y-4">
+                  <!-- 记录内容将在这里展开 -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <Footer />
+
+    <!-- 传递数据给客户端脚本 -->
+    <script define:vars={{ calendarRecordsData, currentYear, currentMonth }}>
+      window.__calendarData__ = {
+        records: calendarRecordsData,
+        year: currentYear,
+        month: currentMonth
+      };
+    </script>
+
+    <script>
+      // 日历数据
+      const data = window.__calendarData__ || { records: [], year: new Date().getFullYear(), month: new Date().getMonth() };
+      let calendarYear = data.year;
+      let calendarMonth = data.month;
+      let calendarCategory = '';
+      const recordsData = data.records;
+
+      // 视图切换元素
+      const viewToggle = document.getElementById('view-toggle');
+      const timelineView = document.getElementById('timeline-view');
+      const calendarView = document.getElementById('calendar-view');
+      const viewButtons = viewToggle?.querySelectorAll('button');
+
+      // 生成日历
+      function generateCalendar(year, month) {
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startDayOfWeek = firstDay.getDay();
+        const days = [];
+
+        for (let i = 0; i < startDayOfWeek; i++) {
+          const date = new Date(year, month, -startDayOfWeek + i + 1);
+          days.push({ date, isCurrentMonth: false });
+        }
+
+        for (let i = 1; i <= daysInMonth; i++) {
+          const date = new Date(year, month, i);
+          days.push({ date, isCurrentMonth: true });
+        }
+
+        const remainingDays = 42 - days.length;
+        for (let i = 1; i <= remainingDays; i++) {
+          const date = new Date(year, month + 1, i);
+          days.push({ date, isCurrentMonth: false });
+        }
+
+        return days;
+      }
+
+      // 获取某日期的记录
+      function getRecordsForDate(dateStr) {
+        return recordsData.filter(r => {
+          const matchDate = r.date === dateStr;
+          const matchCategory = !calendarCategory || r.category === calendarCategory;
+          return matchDate && matchCategory;
+        });
+      }
+
+      // 检查日期是否有记录
+      function hasRecord(dateStr) {
+        return recordsData.some(r => {
+          const matchDate = r.date === dateStr;
+          const matchCategory = !calendarCategory || r.category === calendarCategory;
+          return matchDate && matchCategory;
+        });
+      }
+
+      // 显示选中日期的记录
+      function showRecordsForDate(dateStr) {
+        const records = getRecordsForDate(dateStr);
+        const panel = document.getElementById('calendar-records-panel');
+        const contentDiv = document.getElementById('calendar-records-content');
+        const titleDiv = document.getElementById('selected-date-title');
+
+        if (!panel || !contentDiv || !titleDiv) return;
+
+        if (records.length === 0) {
+          panel.classList.add('hidden');
+          return;
+        }
+
+        // 格式化日期标题
+        const date = new Date(records[0].date);
+        const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+        titleDiv.textContent = records[0].formattedDate + ' (' + weekDays[date.getDay()] + ')';
+
+        // 从时间线视图中复制记录内容
+        contentDiv.innerHTML = records.map(r => {
+          const recordCard = document.getElementById(r.recordId);
+          if (!recordCard) return '';
+
+          const categoryName = recordCard.getAttribute('data-category-name') || '';
+          const detailUrl = recordCard.getAttribute('data-detail-url') || '';
+
+          // 克隆记录卡片的内容
+          const contentClone = recordCard.querySelector('.prose')?.cloneNode(true) || document.createElement('div');
+
+          return `
+            <div class="border-l-4 border-warm-orange pl-4 py-2">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-xs px-2 py-1 bg-warm-beige text-warm-brown rounded-full">
+                  ${categoryName}
+                </span>
+              </div>
+              <div class="prose prose-warm max-w-none text-warm-gray leading-relaxed mb-3">
+                ${contentClone.innerHTML}
+              </div>
+              <a href="${detailUrl}"
+                 class="inline-block text-sm text-warm-orange hover:text-warm-brown transition-colors">
+                查看详情 →
+              </a>
+            </div>
+          `;
+        }).join('');
+
+        panel.classList.remove('hidden');
+      }
+
+      // 渲染日历
+      function renderCalendar() {
+        const grid = document.getElementById('calendar-grid');
+        const monthTitle = document.getElementById('current-month');
+        if (!grid || !monthTitle) return;
+
+        monthTitle.textContent = calendarYear + '年' + (calendarMonth + 1) + '月';
+        const days = generateCalendar(calendarYear, calendarMonth);
+
+        grid.innerHTML = days.map(day => {
+          const dateStr = day.date.toDateString();
+          const hasRecordToday = hasRecord(dateStr);
+          let classes = 'text-center py-3 rounded-lg relative transition-colors';
+          if (day.isCurrentMonth) {
+            classes += ' text-warm-brown';
+            if (hasRecordToday) {
+              classes += ' bg-warm-beige cursor-pointer hover:bg-warm-orange/20';
+            } else {
+              classes += ' cursor-default';
+            }
+          } else {
+            classes += ' text-warm-gray/40 cursor-default';
+          }
+          const dot = hasRecordToday && day.isCurrentMonth
+            ? '<span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-warm-orange rounded-full"></span>'
+            : '';
+          const clickAttr = hasRecordToday && day.isCurrentMonth ? 'data-clickable="true"' : '';
+          return '<div class="' + classes + '" data-date="' + dateStr + '" ' + clickAttr + '>' +
+                 day.date.getDate() + dot + '</div>';
+        }).join('');
+
+        // 绑定点击事件
+        grid.querySelectorAll('[data-clickable="true"]').forEach(el => {
+          el.addEventListener('click', () => {
+            const dateStr = el.getAttribute('data-date');
+            if (dateStr) showRecordsForDate(dateStr);
+          });
+        });
+      }
+
+      // 初始化日历导航
+      function initCalendarNav() {
+        document.getElementById('prev-month')?.addEventListener('click', () => {
+          calendarMonth--;
+          if (calendarMonth < 0) {
+            calendarMonth = 11;
+            calendarYear--;
+          }
+          document.getElementById('calendar-records-panel')?.classList.add('hidden');
+          renderCalendar();
+        });
+
+        document.getElementById('next-month')?.addEventListener('click', () => {
+          calendarMonth++;
+          if (calendarMonth > 11) {
+            calendarMonth = 0;
+            calendarYear++;
+          }
+          document.getElementById('calendar-records-panel')?.classList.add('hidden');
+          renderCalendar();
+        });
+
+        document.getElementById('close-calendar-panel')?.addEventListener('click', () => {
+          document.getElementById('calendar-records-panel')?.classList.add('hidden');
+        });
+      }
+
+      // 获取当前视图
+      function getCurrentView() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('view') || 'timeline';
+      }
+
+      // 获取当前分类
+      function getCurrentCategory() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('category') || '';
+      }
+
+      // 更新视图
+      function updateView(view) {
+        if (!timelineView || !calendarView || !viewButtons) return;
+
+        timelineView.classList.toggle('hidden', view !== 'timeline');
+        calendarView.classList.toggle('hidden', view !== 'calendar');
+
+        viewButtons.forEach(btn => {
+          const btnView = btn.getAttribute('data-view');
+          if (btnView === view) {
+            btn.className = 'px-4 py-2 rounded-lg transition-colors bg-warm-orange text-white';
+          } else {
+            btn.className = 'px-4 py-2 rounded-lg transition-colors bg-warm-beige text-warm-brown hover:bg-warm-orange/20';
+          }
+        });
+
+        if (view === 'calendar') {
+          renderCalendar();
+        }
+      }
+
+      // 更新分类
+      function updateCategory(category) {
+        const categoryButtons = document.querySelectorAll('#category-nav button');
+        const recordCards = document.querySelectorAll('.record-card');
+        const noRecords = document.getElementById('no-records');
+
+        categoryButtons.forEach(btn => {
+          const btnCategory = btn.getAttribute('data-category') || '';
+          if (btnCategory === category) {
+            btn.className = 'w-full text-left py-2 px-3 rounded-lg transition-colors bg-warm-orange text-white';
+          } else {
+            btn.className = 'w-full text-left py-2 px-3 rounded-lg transition-colors text-warm-gray hover:bg-warm-beige';
+          }
+        });
+
+        let visibleCount = 0;
+        recordCards.forEach(card => {
+          const cardCategory = card.getAttribute('data-category') || '';
+          const visible = !category || cardCategory === category;
+          card.style.display = visible ? '' : 'none';
+          if (visible) visibleCount++;
+        });
+
+        if (noRecords) {
+          noRecords.classList.toggle('hidden', visibleCount > 0);
+        }
+
+        calendarCategory = category;
+        if (!calendarView?.classList.contains('hidden')) {
+          renderCalendar();
+          document.getElementById('calendar-records-panel')?.classList.add('hidden');
+        }
+      }
+
+      // 绑定视图切换事件
+      viewButtons?.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const view = btn.getAttribute('data-view');
+          if (view) {
+            const url = new URL(window.location.href);
+            if (view === 'timeline') {
+              url.searchParams.delete('view');
+            } else {
+              url.searchParams.set('view', view);
+            }
+            window.history.pushState({}, '', url.toString());
+            updateView(view);
+          }
+        });
+      });
+
+      // 绑定分类切换事件
+      const categoryButtons = document.querySelectorAll('#category-nav button');
+      categoryButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const category = btn.getAttribute('data-category') || '';
+          const url = new URL(window.location.href);
+          if (category) {
+            url.searchParams.set('category', category);
+          } else {
+            url.searchParams.delete('category');
+          }
+          window.history.pushState({}, '', url.toString());
+          updateCategory(category);
+        });
+      });
+
+      // 初始化
+      initCalendarNav();
+      const initialView = getCurrentView();
+      const initialCategory = getCurrentCategory();
+      updateView(initialView);
+      updateCategory(initialCategory);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+---
+/**
+ * 统计面板组件 - 显示记录统计信息
+ */
+interface CategoryStat {
+  name: string;
+  count: number;
+}
+
+interface StatsData {
+  total: number;
+  byCategory: CategoryStat[];
+  streak: number;
+}
+
+interface Props {
+  stats: StatsData;
+}
+
+const { stats } = Astro.props;
+---
+
+<div class="stats-panel bg-warm-beige/30 rounded-lg p-4">
+  <h3 class="text-lg font-serif text-warm-brown mb-4">统计</h3>
+
+  <div class="space-y-4">
+    <div class="text-center">
+      <div class="text-3xl font-bold text-warm-orange">{stats.total}</div>
+      <div class="text-sm text-warm-gray">总记录</div>
+    </div>
+
+    <div class="text-center">
+      <div class="text-3xl font-bold text-warm-orange">{stats.streak}</div>
+      <div class="text-sm text-warm-gray">连续天数</div>
+    </div>
+
+    {stats.byCategory.length > 0 && (
+      <>
+        <hr class="border-warm-orange/20" />
+
+        <div class="space-y-2">
+          {stats.byCategory.map((cat) => (
+            <div class="flex justify-between text-sm">
+              <span class="text-warm-gray">{cat.name}</span>
+              <span class="text-warm-brown font-medium">{cat.count}</span>
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+</div>

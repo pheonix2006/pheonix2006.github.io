@@ -1,0 +1,74 @@
+---
+/**
+ * 记录详情页 - 显示单条记录的完整内容
+ * 使用 render() 函数渲染 Markdown 内容
+ */
+import { getCollection, render } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Nav from '../../components/Nav.astro';
+import { SITE_TITLE } from '../../consts';
+
+export async function getStaticPaths() {
+  const records = await getCollection('records');
+  return records.map((record) => ({
+    params: { slug: record.id },
+    props: { record },
+  }));
+}
+
+const { record } = Astro.props;
+
+// 渲染 Markdown 内容
+const { Content } = await render(record);
+
+// 格式化日期
+function formatDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  const weekDay = weekDays[date.getDay()];
+  return `${year}年${month}月${day}日 ${weekDay}`;
+}
+
+// 从文件路径提取分类
+function getCategory(id: string): string {
+  return id.split('/')[0];
+}
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={`${formatDate(record.data.date)} - ${SITE_TITLE}`} description="记录详情" />
+  </head>
+  <body class="bg-warm-white min-h-screen">
+    <Nav />
+
+    <main class="max-w-3xl mx-auto px-6 py-12">
+      <a href="/records" class="text-warm-orange hover:underline mb-6 inline-block">
+        ← 返回记录列表
+      </a>
+
+      <article class="bg-white rounded-lg shadow-md p-8">
+        <header class="mb-6">
+          <div class="flex items-center gap-3 mb-4">
+            <time class="text-warm-gray">
+              {formatDate(record.data.date)}
+            </time>
+            <span class="text-sm px-3 py-1 bg-warm-beige text-warm-brown rounded-full">
+              {getCategory(record.id)}
+            </span>
+          </div>
+        </header>
+
+        <div class="prose prose-lg max-w-none text-warm-gray leading-relaxed">
+          <Content />
+        </div>
+      </article>
+    </main>
+
+    <Footer />
+  </body>
+</html>

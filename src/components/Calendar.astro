@@ -1,0 +1,63 @@
+---
+/**
+ * 日历组件 - 显示有记录的日期
+ * 纯 HTML 结构，由主页面的 JavaScript 控制渲染
+ */
+const today = new Date();
+const currentYear = today.getFullYear();
+const currentMonth = today.getMonth();
+---
+
+<div class="calendar bg-white rounded-lg shadow-sm p-6" id="calendar-component">
+  <!-- 月份导航 -->
+  <div class="flex items-center justify-between mb-6">
+    <button id="prev-month" class="p-2 text-warm-gray hover:text-warm-orange transition-colors cursor-pointer">
+      ◀
+    </button>
+    <h3 class="text-xl font-serif text-warm-brown" id="current-month">
+      {currentYear}年{currentMonth + 1}月
+    </h3>
+    <button id="next-month" class="p-2 text-warm-gray hover:text-warm-orange transition-colors cursor-pointer">
+      ▶
+    </button>
+  </div>
+
+  <!-- 星期标题 -->
+  <div class="grid grid-cols-7 gap-1 mb-2">
+    <div class="text-center text-sm text-warm-gray py-2">日</div>
+    <div class="text-center text-sm text-warm-gray py-2">一</div>
+    <div class="text-center text-sm text-warm-gray py-2">二</div>
+    <div class="text-center text-sm text-warm-gray py-2">三</div>
+    <div class="text-center text-sm text-warm-gray py-2">四</div>
+    <div class="text-center text-sm text-warm-gray py-2">五</div>
+    <div class="text-center text-sm text-warm-gray py-2">六</div>
+  </div>
+
+  <!-- 日期网格 -->
+  <div class="grid grid-cols-7 gap-1" id="calendar-grid">
+    <!-- 日期由 JavaScript 动态生成 -->
+  </div>
+
+  <!-- 图例 -->
+  <div class="flex flex-wrap items-center gap-4 mt-6 text-sm text-warm-gray border-t border-warm-beige pt-4">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 bg-warm-beige rounded flex items-center justify-center relative">
+        <span class="text-xs text-warm-brown font-medium">15</span>
+        <span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-warm-orange rounded-full"></span>
+      </div>
+      <span>有记录的日期</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded flex items-center justify-center">
+        <span class="text-xs text-warm-brown font-medium">20</span>
+      </div>
+      <span>无记录的日期</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded flex items-center justify-center">
+        <span class="text-xs text-warm-gray/40 font-medium">5</span>
+      </div>
+      <span>非本月日期</span>
+    </div>
+  </div>
+</div>

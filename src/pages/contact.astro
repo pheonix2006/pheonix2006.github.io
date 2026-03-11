@@ -1,0 +1,133 @@
+---
+/**
+ * 联系页 - 展示社交链接卡片（GitHub、Email）
+ * 使用温暖文艺配色，符合项目整体风格
+ */
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Nav from '../components/Nav.astro';
+import { SITE_TITLE } from '../consts';
+
+// Mock 数据 - 联系方式
+const contactMethods = [
+  {
+    name: 'GitHub',
+    url: 'https://github.com/phoenix2006',
+    icon: 'github',
+    description: '查看我的开源项目和代码贡献',
+    username: '@phoenix2006',
+  },
+  {
+    name: 'Email',
+    url: 'mailto:hello@phoenix2006.com',
+    icon: 'email',
+    description: '发送邮件与我直接交流',
+    username: 'hello@phoenix2006.com',
+  },
+];
+
+// 图标 SVG 路径
+const icons: Record<string, string> = {
+  github: 'M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z',
+  email: 'M1.75 2A1.75 1.75 0 0 0 0 3.75v.736a.75.75 0 0 0 .013.157l2.22 9.08a1.75 1.75 0 0 0 1.689 1.337h9.156a1.75 1.75 0 0 0 1.689-1.337l2.22-9.08a.75.75 0 0 0 .013-.157v-.736A1.75 1.75 0 0 0 15.25 2Zm0 1.5h13.5a.25.25 0 0 1 .25.25v.349l-2.063 8.444a.25.25 0 0 1-.241.191H3.804a.25.25 0 0 1-.241-.191L1.5 4.099v-.349a.25.25 0 0 1 .25-.25Zm3.78 3.22a.75.75 0 1 0-1.06 1.06L6.94 9.5l-2.47 2.47a.75.75 0 1 0 1.06 1.06L8 10.56l2.47 2.47a.75.75 0 1 0 1.06-1.06L9.06 9.5l2.47-2.47a.75.75 0 0 0-1.06-1.06L8 8.44 5.53 5.97Z',
+};
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={`联系我 - ${SITE_TITLE}`} description="通过 GitHub 或 Email 与 Phoenix 取得联系" />
+  </head>
+  <body class="bg-warm-white min-h-screen">
+    <!-- 导航栏 -->
+    <Nav />
+
+    <!-- 主内容区 -->
+    <main class="max-w-4xl mx-auto px-6 py-12">
+      <!-- 页面标题 -->
+      <header class="text-center mb-12">
+        <h1 class="text-4xl font-serif text-warm-brown mb-4">联系我</h1>
+        <div class="w-16 h-1 bg-warm-orange mx-auto rounded-full"></div>
+        <p class="text-warm-gray mt-6 max-w-xl mx-auto">
+          欢迎通过以下方式与我取得联系，无论是技术交流、项目合作还是简单的问候，我都很乐意收到你的消息。
+        </p>
+      </header>
+
+      <!-- 联系方式卡片 -->
+      <section class="contact-cards">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {contactMethods.map((method) => (
+            <a
+              href={method.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="contact-card group block bg-warm-beige/30 rounded-xl p-8 hover:bg-warm-beige/50 transition-all duration-300 hover:shadow-lg border border-transparent hover:border-warm-orange/20"
+            >
+              <!-- 图标 -->
+              <div class="flex items-center justify-center w-16 h-16 rounded-full bg-warm-orange/10 text-warm-orange mb-6 group-hover:bg-warm-orange group-hover:text-warm-white transition-colors duration-300">
+                <svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
+                  <path fill="currentColor" d={icons[method.icon]}></path>
+                </svg>
+              </div>
+
+              <!-- 标题 -->
+              <h2 class="text-2xl font-serif text-warm-brown mb-2 group-hover:text-warm-orange transition-colors duration-300">
+                {method.name}
+              </h2>
+
+              <!-- 用户名 -->
+              <div class="text-warm-orange font-medium mb-3">
+                {method.username}
+              </div>
+
+              <!-- 描述 -->
+              <p class="text-warm-gray text-sm leading-relaxed">
+                {method.description}
+              </p>
+
+              <!-- 箭头指示 -->
+              <div class="mt-4 flex items-center text-warm-gray text-sm group-hover:text-warm-orange transition-colors duration-300">
+                <span>点击访问</span>
+                <svg class="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                </svg>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <!-- 附加信息 -->
+      <section class="mt-16 text-center">
+        <div class="bg-warm-beige/20 rounded-lg p-8">
+          <h3 class="text-xl font-serif text-warm-brown mb-4">期待与你的交流</h3>
+          <p class="text-warm-gray max-w-2xl mx-auto">
+            我通常会在一到两个工作日内回复邮件。如果你有紧急事项，可以通过 GitHub Issues 在我的开源项目下留言。
+          </p>
+        </div>
+      </section>
+
+      <!-- 底部引导 -->
+      <section class="mt-16 text-center">
+        <p class="text-warm-gray mb-6">想了解更多关于我的信息？</p>
+        <div class="flex justify-center gap-4">
+          <a
+            href="/about"
+            class="inline-block bg-warm-orange text-warm-white px-6 py-2 rounded-lg font-serif hover:bg-warm-brown transition-colors duration-300"
+          >
+            关于我
+          </a>
+          <a
+            href="/blog"
+            class="inline-block bg-warm-beige text-warm-brown px-6 py-2 rounded-lg font-serif hover:bg-warm-orange hover:text-warm-white transition-colors duration-300"
+          >
+            阅读博客
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- 页脚 -->
+    <Footer />
+  </body>
+</html>

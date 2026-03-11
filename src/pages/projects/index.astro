@@ -1,0 +1,190 @@
+---
+/**
+ * 项目列表页 - 展示所有项目的网格布局
+ * 使用温暖文艺配色，从 content collections 获取数据
+ */
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Nav from '../../components/Nav.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { SITE_TITLE } from '../../consts';
+
+// 获取所有项目
+let projects = [];
+try {
+  const allProjects = await getCollection('projects');
+  projects = allProjects.sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  );
+} catch (e) {
+  // 如果获取失败，使用 Mock 数据
+  projects = [
+    {
+      id: 'example-project',
+      data: {
+        title: '示例项目一',
+        description: '一个使用 Astro 构建的现代网站项目，展示了响应式设计和优雅的用户界面。',
+        pubDate: new Date('2026-03-01'),
+        heroImage: undefined,
+        tags: ['Astro', 'TypeScript', 'Web'],
+        url: 'https://example.com',
+        repo: 'https://github.com/example/project1',
+      },
+    },
+    {
+      id: 'project-two',
+      data: {
+        title: '示例项目二',
+        description: '基于 React 的交互式应用开发，实现了丰富的用户交互功能。',
+        pubDate: new Date('2026-02-15'),
+        heroImage: undefined,
+        tags: ['React', 'Node.js', 'Full Stack'],
+        url: 'https://example2.com',
+        repo: 'https://github.com/example/project2',
+      },
+    },
+    {
+      id: 'project-three',
+      data: {
+        title: '示例项目三',
+        description: '开源工具库，提升开发效率，被多个项目采用。',
+        pubDate: new Date('2026-01-20'),
+        heroImage: undefined,
+        tags: ['开源', '工具', 'CLI'],
+        repo: 'https://github.com/example/project3',
+      },
+    },
+    {
+      id: 'project-four',
+      data: {
+        title: '示例项目四',
+        description: '数据可视化仪表板，将复杂数据以直观的方式呈现。',
+        pubDate: new Date('2025-12-10'),
+        heroImage: undefined,
+        tags: ['D3.js', '数据可视化', 'Dashboard'],
+      },
+    },
+    {
+      id: 'project-five',
+      data: {
+        title: '示例项目五',
+        description: '移动端优先的响应式电商网站模板。',
+        pubDate: new Date('2025-11-05'),
+        heroImage: undefined,
+        tags: ['电商', '响应式', 'Tailwind'],
+        url: 'https://shop.example.com',
+      },
+    },
+    {
+      id: 'project-six',
+      data: {
+        title: '示例项目六',
+        description: '基于 AI 的智能写作助手工具。',
+        pubDate: new Date('2025-10-20'),
+        heroImage: undefined,
+        tags: ['AI', 'NLP', '写作工具'],
+        url: 'https://write.example.com',
+        repo: 'https://github.com/example/project6',
+      },
+    },
+  ];
+}
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={`项目 - ${SITE_TITLE}`} description="探索我的项目作品集" />
+  </head>
+  <body class="bg-warm-white min-h-screen">
+    <!-- 导航栏 -->
+    <Nav />
+
+    <!-- 主内容区 -->
+    <main class="max-w-6xl mx-auto px-6 py-12">
+      <!-- 页面标题 -->
+      <header class="text-center mb-12">
+        <h1 class="text-4xl font-serif text-warm-brown mb-4">项目作品</h1>
+        <p class="text-warm-gray text-lg">探索我创建的项目和作品</p>
+      </header>
+
+      <!-- 项目网格 -->
+      <section class="projects-grid">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {projects.map((project) => (
+            <article class="project-card bg-warm-beige rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <!-- 项目图片 -->
+              <a href={`/projects/${project.id}`} class="block">
+                <div class="aspect-video bg-gradient-to-br from-warm-orange/20 to-warm-brown/20 flex items-center justify-center overflow-hidden">
+                  {project.data.heroImage && typeof project.data.heroImage === 'object' && 'src' in project.data.heroImage ? (
+                    <Image
+                      src={project.data.heroImage}
+                      alt={project.data.title}
+                      class="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      src="/images/project-placeholder.svg"
+                      alt={project.data.title}
+                      class="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+              </a>
+
+              <!-- 项目信息 -->
+              <div class="p-5">
+                <h2 class="text-xl font-serif text-warm-brown mb-2">
+                  <a href={`/projects/${project.id}`} class="hover:text-warm-orange transition-colors">
+                    {project.data.title}
+                  </a>
+                </h2>
+
+                <p class="text-sm text-warm-gray mb-3 line-clamp-2">
+                  {project.data.description}
+                </p>
+
+                <time class="text-xs text-warm-gray/70 block mb-3">
+                  <FormattedDate date={project.data.pubDate} />
+                </time>
+
+                <!-- 标签 -->
+                {project.data.tags && project.data.tags.length > 0 && (
+                  <div class="flex flex-wrap gap-1 mb-3">
+                    {project.data.tags.slice(0, 3).map((tag: string) => (
+                      <span class="text-xs bg-warm-orange/20 text-warm-brown px-2 py-0.5 rounded">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <!-- 链接按钮 -->
+                <div class="flex gap-2 mt-3">
+                  <a
+                    href={`/projects/${project.id}`}
+                    class="text-sm text-warm-orange hover:text-warm-brown transition-colors"
+                  >
+                    查看详情 →
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- 空状态 -->
+      {projects.length === 0 && (
+        <div class="text-center py-16">
+          <p class="text-warm-gray text-lg">暂无项目</p>
+        </div>
+      )}
+    </main>
+
+    <!-- 页脚 -->
+    <Footer />
+  </body>
+</html>

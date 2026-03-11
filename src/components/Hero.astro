@@ -1,0 +1,86 @@
+---
+/**
+ * Hero 组件 - 首页英雄区域
+ * 展示个人介绍和标语
+ */
+
+interface Props {
+  avatar?: string;
+  name?: string;
+  bio?: string;
+}
+
+const {
+  avatar = '/images/avatar.svg',
+  name = 'Phoenix',
+  bio = '一名热爱技术与创意的开发者'
+} = Astro.props;
+
+// Mock 数据
+const heroData = {
+  title: '你好，我是 ' + name,
+  subtitle: bio,
+  description: '专注于 Web 开发、开源项目和技术写作。在这里分享我的想法、项目和学习心得。',
+  ctaText: '了解更多',
+  ctaLink: '/about',
+};
+---
+
+<section class="hero bg-warm-beige py-20 px-6">
+  <div class="max-w-4xl mx-auto text-center">
+    <!-- 头像 -->
+    {avatar && (
+      <div class="mb-8 animate-fade-in">
+        <img
+          src={avatar}
+          alt={name + '的头像'}
+          class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover mx-auto border-4 border-warm-white shadow-lg"
+        />
+      </div>
+    )}
+
+    <!-- 标题 -->
+    <h1 class="text-4xl md:text-5xl font-serif text-warm-brown mb-4 animate-fade-in">
+      {heroData.title}
+    </h1>
+
+    <!-- 副标题 -->
+    <p class="text-xl md:text-2xl text-warm-orange font-serif mb-6">
+      {heroData.subtitle}
+    </p>
+
+    <!-- 描述 -->
+    <p class="text-lg text-warm-gray max-w-2xl mx-auto mb-8 leading-relaxed">
+      {heroData.description}
+    </p>
+
+    <!-- CTA 按钮 -->
+    <a
+      href={heroData.ctaLink}
+      class="inline-block bg-warm-orange text-warm-white px-8 py-3 rounded-lg font-serif text-lg hover:bg-warm-brown transition-colors duration-300 shadow-md hover:shadow-lg"
+    >
+      {heroData.ctaText}
+    </a>
+  </div>
+</section>
+
+<style>
+  .hero {
+    background: linear-gradient(135deg, var(--color-warm-beige) 0%, var(--color-warm-white) 100%);
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

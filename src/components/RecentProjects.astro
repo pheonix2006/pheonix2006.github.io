@@ -1,0 +1,129 @@
+---
+/**
+ * 最近项目组件 - 展示最新项目列表
+ * 从 content collections 获取数据
+ */
+import { getCollection } from 'astro:content';
+
+// 获取最近3个项目
+let recentProjects = [];
+try {
+  const allProjects = await getCollection('projects');
+  recentProjects = allProjects
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+    .slice(0, 3);
+} catch (e) {
+  // 如果获取失败，使用 Mock 数据
+  recentProjects = [
+    {
+      id: 'example-project',
+      data: {
+        title: '示例项目一',
+        description: '一个使用 Astro 构建的现代网站项目',
+        pubDate: new Date('2026-03-01'),
+        heroImage: undefined,
+        tags: ['Astro', 'TypeScript'],
+      },
+    },
+    {
+      id: 'project-two',
+      data: {
+        title: '示例项目二',
+        description: '基于 React 的交互式应用开发',
+        pubDate: new Date('2026-02-15'),
+        heroImage: undefined,
+        tags: ['React', 'Node.js'],
+      },
+    },
+    {
+      id: 'project-three',
+      data: {
+        title: '示例项目三',
+        description: '开源工具库，提升开发效率',
+        pubDate: new Date('2026-01-20'),
+        heroImage: undefined,
+        tags: ['开源', '工具'],
+      },
+    },
+  ];
+}
+
+// 格式化日期
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+---
+
+<section class="recent-projects py-16 px-6 bg-warm-white">
+  <div class="max-w-4xl mx-auto">
+    <!-- 标题 -->
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-serif text-warm-brown mb-2">最近项目</h2>
+      <p class="text-warm-gray">探索我最新的作品</p>
+    </div>
+
+    <!-- 项目列表 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {recentProjects.map((project) => (
+        <article class="project-card bg-warm-beige rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+          <!-- 项目图片 -->
+          <div class="aspect-video bg-gradient-to-br from-warm-orange/20 to-warm-brown/20 flex items-center justify-center">
+            {project.data.heroImage && typeof project.data.heroImage === 'object' && 'src' in project.data.heroImage ? (
+              <img
+                src={project.data.heroImage.src}
+                alt={project.data.title}
+                class="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src="/images/project-placeholder.svg"
+                alt={project.data.title}
+                class="w-full h-full object-cover"
+              />
+            )}
+          </div>
+
+          <!-- 项目信息 -->
+          <div class="p-4">
+            <h3 class="text-lg font-serif text-warm-brown mb-2">
+              <a href={`/projects/${project.id}`} class="hover:text-warm-orange transition-colors">
+                {project.data.title}
+              </a>
+            </h3>
+            <p class="text-sm text-warm-gray mb-3 line-clamp-2">
+              {project.data.description}
+            </p>
+            <time class="text-xs text-warm-gray/70">
+              {formatDate(project.data.pubDate)}
+            </time>
+
+            <!-- 标签 -->
+            {project.data.tags && project.data.tags.length > 0 && (
+              <div class="flex flex-wrap gap-1 mt-2">
+                {project.data.tags.slice(0, 3).map((tag: string) => (
+                  <span class="text-xs bg-warm-orange/20 text-warm-brown px-2 py-0.5 rounded">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <!-- 查看更多 -->
+    <div class="text-center mt-8">
+      <a
+        href="/projects"
+        class="inline-block text-warm-orange hover:text-warm-brown transition-colors font-serif"
+      >
+        查看所有项目 →
+      </a>
+    </div>
+  </div>
+</section>

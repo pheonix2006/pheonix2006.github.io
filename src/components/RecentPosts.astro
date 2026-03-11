@@ -1,0 +1,106 @@
+---
+/**
+ * 最新文章组件 - 展示最新博客文章列表
+ * 从 content collections 获取数据
+ */
+import { getCollection } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+
+// 获取最近3篇文章
+let recentPosts = [];
+try {
+  const allPosts = await getCollection('blog');
+  recentPosts = allPosts
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+    .slice(0, 3);
+} catch (e) {
+  // 如果获取失败，使用 Mock 数据
+  recentPosts = [
+    {
+      id: 'first-post',
+      slug: 'first-post',
+      data: {
+        title: '第一篇博客文章',
+        description: '这是我的第一篇博客文章，介绍这个网站的搭建过程。',
+        pubDate: new Date('2026-03-08'),
+        heroImage: undefined,
+      },
+    },
+    {
+      id: 'second-post',
+      slug: 'second-post',
+      data: {
+        title: '学习 Astro 框架',
+        description: '分享学习 Astro 框架的心得体会和最佳实践。',
+        pubDate: new Date('2026-03-05'),
+        heroImage: undefined,
+      },
+    },
+    {
+      id: 'third-post',
+      slug: 'third-post',
+      data: {
+        title: 'Tailwind CSS 使用技巧',
+        description: '探索 Tailwind CSS 的高级用法和自定义配置。',
+        pubDate: new Date('2026-02-28'),
+        heroImage: undefined,
+      },
+    },
+  ];
+}
+---
+
+<section class="recent-posts py-16 px-6 bg-warm-beige/30">
+  <div class="max-w-4xl mx-auto">
+    <!-- 标题 -->
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-serif text-warm-brown mb-2">最新文章</h2>
+      <p class="text-warm-gray">阅读我的技术分享与思考</p>
+    </div>
+
+    <!-- 文章列表 -->
+    <div class="space-y-6">
+      {recentPosts.map((post) => (
+        <article class="post-card bg-warm-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-300 flex gap-6">
+          <!-- 文章图片 -->
+          <div class="hidden md:block w-48 h-32 flex-shrink-0 bg-gradient-to-br from-warm-orange/20 to-warm-brown/20 rounded-lg overflow-hidden">
+            {post.data.heroImage && typeof post.data.heroImage === 'object' && 'src' in post.data.heroImage ? (
+              <img
+                src={post.data.heroImage.src}
+                alt={post.data.title}
+                class="w-full h-full object-cover"
+              />
+            ) : (
+              <div class="w-full h-full flex items-center justify-center">
+                <span class="text-warm-orange text-3xl">📝</span>
+              </div>
+            )}
+          </div>
+
+          <!-- 文章信息 -->
+          <div class="flex-1">
+            <h3 class="text-xl font-serif text-warm-brown mb-2">
+              <a href={`/blog/${post.slug || post.id}/`} class="hover:text-warm-orange transition-colors">
+                {post.data.title}
+              </a>
+            </h3>
+            <p class="text-warm-gray text-sm mb-3 line-clamp-2">
+              {post.data.description}
+            </p>
+            <FormattedDate date={post.data.pubDate} />
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <!-- 查看更多 -->
+    <div class="text-center mt-8">
+      <a
+        href="/blog"
+        class="inline-block text-warm-orange hover:text-warm-brown transition-colors font-serif"
+      >
+        查看所有文章 →
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,373 @@
+---
+/**
+ * 博客详情页 - 展示单篇博客文章的详细内容
+ * 使用温暖文艺配色，从 content collections 获取数据
+ */
+import { Image } from 'astro:assets';
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Nav from '../../components/Nav.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { SITE_TITLE } from '../../consts';
+
+// 定义 Mock 博客数据
+const mockPosts: Record<string, CollectionEntry<'blog'>> = {
+  'first-post': {
+    id: 'first-post',
+    collection: 'blog',
+    data: {
+      title: '第一篇博客文章',
+      description: '欢迎来到我的博客！这是我的第一篇文章，记录我开启技术写作之旅。',
+      pubDate: new Date('2022-07-08'),
+      heroImage: undefined,
+    },
+  },
+  'second-post': {
+    id: 'second-post',
+    collection: 'blog',
+    data: {
+      title: '第二篇博客文章',
+      description: '继续我的技术探索之旅，分享更多有趣的内容。',
+      pubDate: new Date('2022-07-15'),
+      heroImage: undefined,
+    },
+  },
+  'third-post': {
+    id: 'third-post',
+    collection: 'blog',
+    data: {
+      title: '第三篇博客文章',
+      description: '更多精彩内容，敬请期待。',
+      pubDate: new Date('2022-07-22'),
+      heroImage: undefined,
+    },
+  },
+  'markdown-style-guide': {
+    id: 'markdown-style-guide',
+    collection: 'blog',
+    data: {
+      title: 'Markdown 样式指南',
+      description: '一份全面的 Markdown 语法和样式指南。',
+      pubDate: new Date('2026-02-15'),
+      heroImage: undefined,
+    },
+  },
+  'using-mdx': {
+    id: 'using-mdx',
+    collection: 'blog',
+    data: {
+      title: '使用 MDX',
+      description: '了解如何在 Astro 中使用 MDX 来增强你的内容。',
+      pubDate: new Date('2026-02-20'),
+      heroImage: undefined,
+    },
+  },
+  'fourth-post': {
+    id: 'fourth-post',
+    collection: 'blog',
+    data: {
+      title: '从零开始学习 TypeScript',
+      description: 'TypeScript 入门指南，从基础类型到高级特性。',
+      pubDate: new Date('2026-01-28'),
+      heroImage: undefined,
+    },
+  },
+  'fifth-post': {
+    id: 'fifth-post',
+    collection: 'blog',
+    data: {
+      title: '响应式设计最佳实践',
+      description: '构建适配所有设备的响应式网站的技术要点。',
+      pubDate: new Date('2026-01-10'),
+      heroImage: undefined,
+    },
+  },
+  'sixth-post': {
+    id: 'sixth-post',
+    collection: 'blog',
+    data: {
+      title: 'CSS Grid 完全指南',
+      description: '掌握 CSS Grid 布局，创建复杂的网页布局。',
+      pubDate: new Date('2025-12-20'),
+      heroImage: undefined,
+    },
+  },
+};
+
+// Mock 文章内容
+const mockContent: Record<string, string> = {
+  'first-post': `<p>欢迎来到我的博客！</p>
+<p>这是我开启技术写作之旅的第一篇文章。在接下来的日子里，我将分享我的技术学习心得、项目经验以及对生活的感悟。</p>
+<h2>为什么要写博客？</h2>
+<p>写作是最好的学习方式。通过整理和输出，能够更深入地理解和掌握知识。</p>
+<ul>
+<li>记录学习过程</li>
+<li>分享技术经验</li>
+<li>建立个人品牌</li>
+<li>与读者交流</li>
+</ul>
+<p>希望你能在这里找到有价值的内容！</p>`,
+  'second-post': `<p>继续我的技术探索之旅！</p>
+<p>在这篇文章中，我想分享一些我在前端开发中学到的经验。</p>
+<h2>前端开发的演进</h2>
+<p>从 jQuery 到 React/Vue，前端开发经历了巨大的变化。现代前端框架让开发者能够更高效地构建复杂的用户界面。</p>`,
+  'third-post': `<p>更多精彩内容即将到来！</p>
+<p>感谢你持续关注我的博客。</p>`,
+  'markdown-style-guide': `<p>这是一份 Markdown 样式指南。</p>
+<h2>标题语法</h2>
+<p>使用 # 符号来创建标题。</p>
+<h2>列表</h2>
+<ul>
+<li>无序列表项 1</li>
+<li>无序列表项 2</li>
+</ul>
+<h2>代码</h2>
+<p>使用反引号来标记<code>行内代码</code>。</p>`,
+  'using-mdx': `<p>MDX 是 Markdown 的超集，允许你在 Markdown 中使用 JSX 组件。</p>
+<h2>MDX 的优势</h2>
+<ul>
+<li>可以在 Markdown 中使用 React 组件</li>
+<li>支持导入和导出</li>
+<li>与 Astro 完美集成</li>
+</ul>`,
+};
+
+export async function getStaticPaths() {
+  let posts: CollectionEntry<'blog'>[] = [];
+
+  try {
+    posts = await getCollection('blog');
+  } catch (e) {
+    // 如果获取失败，使用 Mock 数据
+    posts = Object.values(mockPosts);
+  }
+
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+
+// 尝试渲染内容
+let Content: any = null;
+let renderedContent = '';
+
+try {
+  const rendered = await render(post);
+  Content = rendered.Content;
+} catch (e) {
+  // 如果渲染失败，使用 Mock 内容
+  renderedContent = mockContent[post.id] || `
+    <p>这是 <strong>${post.data.title}</strong> 的详细内容。</p>
+    <h2>文章简介</h2>
+    <p>${post.data.description}</p>
+  `;
+}
+
+const { title, description, pubDate, updatedDate, heroImage } = post.data;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={`${title} - ${SITE_TITLE}`} description={description} />
+  </head>
+  <body class="bg-warm-white min-h-screen">
+    <!-- 导航栏 -->
+    <Nav />
+
+    <!-- 主内容区 -->
+    <main class="max-w-3xl mx-auto px-6 py-12">
+      <!-- 返回链接 -->
+      <nav class="mb-8">
+        <a
+          href="/blog"
+          class="inline-flex items-center text-warm-orange hover:text-warm-brown transition-colors font-serif"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          返回博客列表
+        </a>
+      </nav>
+
+      <article class="blog-post">
+        <!-- 文章头部 -->
+        <header class="mb-8">
+          <!-- 文章图片 -->
+          {heroImage && typeof heroImage === 'object' && 'src' in heroImage ? (
+            <div class="aspect-video rounded-lg overflow-hidden shadow-lg mb-6">
+              <Image
+                src={heroImage}
+                alt={title}
+                class="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div class="aspect-video rounded-lg bg-gradient-to-br from-warm-orange/20 to-warm-brown/20 flex items-center justify-center mb-6">
+              <span class="text-warm-orange text-6xl opacity-60">📝</span>
+            </div>
+          )}
+
+          <!-- 标题和日期 -->
+          <h1 class="text-4xl font-serif text-warm-brown mb-4">{title}</h1>
+
+          <div class="flex flex-wrap items-center gap-4 text-warm-gray text-sm mb-4">
+            <time>
+              发布于 <FormattedDate date={pubDate} />
+            </time>
+            {updatedDate && (
+              <time class="italic">
+                更新于 <FormattedDate date={updatedDate} />
+              </time>
+            )}
+          </div>
+
+          <!-- 描述 -->
+          <p class="text-lg text-warm-gray leading-relaxed border-l-4 border-warm-orange pl-4 italic">
+            {description}
+          </p>
+        </header>
+
+        <!-- 文章内容 -->
+        <div class="blog-content text-warm-gray leading-relaxed">
+          {Content ? (
+            <Content />
+          ) : (
+            <div class="prose-content" set:html={renderedContent} />
+          )}
+        </div>
+      </article>
+
+      <!-- 底部返回链接 -->
+      <nav class="mt-12 pt-8 border-t border-warm-beige">
+        <a
+          href="/blog"
+          class="inline-flex items-center text-warm-orange hover:text-warm-brown transition-colors font-serif"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          返回博客列表
+        </a>
+      </nav>
+    </main>
+
+    <!-- 页脚 -->
+    <Footer />
+  </body>
+</html>
+
+<style>
+  /* 博客内容样式 */
+  .blog-content :global(h2) {
+    font-size: 1.5rem;
+    font-family: "Noto Serif SC", serif;
+    color: #6b4423;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .blog-content :global(h3) {
+    font-size: 1.25rem;
+    font-family: "Noto Serif SC", serif;
+    color: #6b4423;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .blog-content :global(p) {
+    margin-bottom: 1rem;
+    line-height: 1.8;
+  }
+
+  .blog-content :global(ul),
+  .blog-content :global(ol) {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .blog-content :global(li) {
+    margin-bottom: 0.5rem;
+    line-height: 1.7;
+  }
+
+  .blog-content :global(code) {
+    background-color: #f4e8d9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    color: #6b4423;
+  }
+
+  .blog-content :global(pre) {
+    background-color: #6b4423;
+    color: #f4e8d9;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+
+  .blog-content :global(pre code) {
+    background-color: transparent;
+    padding: 0;
+    color: inherit;
+  }
+
+  .blog-content :global(blockquote) {
+    border-left: 4px solid #e07a5f;
+    padding-left: 1rem;
+    font-style: italic;
+    color: #5c5c5c;
+    margin: 1.5rem 0;
+  }
+
+  .blog-content :global(a) {
+    color: #e07a5f;
+    transition: color 0.3s;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .blog-content :global(a:hover) {
+    color: #6b4423;
+  }
+
+  .blog-content :global(hr) {
+    border: none;
+    border-top: 1px solid #e8dcc8;
+    margin: 2rem 0;
+  }
+
+  .blog-content :global(img) {
+    border-radius: 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .blog-content :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  .blog-content :global(th),
+  .blog-content :global(td) {
+    border: 1px solid #e8dcc8;
+    padding: 0.75rem;
+    text-align: left;
+  }
+
+  .blog-content :global(th) {
+    background-color: #f4e8d9;
+    font-family: "Noto Serif SC", serif;
+    color: #6b4423;
+  }
+</style>

@@ -1,0 +1,391 @@
+---
+/**
+ * 项目详情页 - 展示单个项目的详细信息
+ * 使用温暖文艺配色，从 content collections 获取数据
+ */
+import { Image } from 'astro:assets';
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Nav from '../../components/Nav.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { SITE_TITLE } from '../../consts';
+
+// 定义 Mock 项目数据
+const mockProjects: Record<string, CollectionEntry<'projects'>> = {
+  'example-project': {
+    id: 'example-project',
+    collection: 'projects',
+    data: {
+      title: '示例项目一',
+      description: '一个使用 Astro 构建的现代网站项目，展示了响应式设计和优雅的用户界面。',
+      pubDate: new Date('2026-03-01'),
+      heroImage: undefined,
+      tags: ['Astro', 'TypeScript', 'Web'],
+      url: 'https://example.com',
+      repo: 'https://github.com/example/project1',
+    },
+  },
+  'project-two': {
+    id: 'project-two',
+    collection: 'projects',
+    data: {
+      title: '示例项目二',
+      description: '基于 React 的交互式应用开发，实现了丰富的用户交互功能。',
+      pubDate: new Date('2026-02-15'),
+      heroImage: undefined,
+      tags: ['React', 'Node.js', 'Full Stack'],
+      url: 'https://example2.com',
+      repo: 'https://github.com/example/project2',
+    },
+  },
+  'project-three': {
+    id: 'project-three',
+    collection: 'projects',
+    data: {
+      title: '示例项目三',
+      description: '开源工具库，提升开发效率，被多个项目采用。',
+      pubDate: new Date('2026-01-20'),
+      heroImage: undefined,
+      tags: ['开源', '工具', 'CLI'],
+      repo: 'https://github.com/example/project3',
+    },
+  },
+  'project-four': {
+    id: 'project-four',
+    collection: 'projects',
+    data: {
+      title: '示例项目四',
+      description: '数据可视化仪表板，将复杂数据以直观的方式呈现。',
+      pubDate: new Date('2025-12-10'),
+      heroImage: undefined,
+      tags: ['D3.js', '数据可视化', 'Dashboard'],
+    },
+  },
+  'project-five': {
+    id: 'project-five',
+    collection: 'projects',
+    data: {
+      title: '示例项目五',
+      description: '移动端优先的响应式电商网站模板。',
+      pubDate: new Date('2025-11-05'),
+      heroImage: undefined,
+      tags: ['电商', '响应式', 'Tailwind'],
+      url: 'https://shop.example.com',
+    },
+  },
+  'project-six': {
+    id: 'project-six',
+    collection: 'projects',
+    data: {
+      title: '示例项目六',
+      description: '基于 AI 的智能写作助手工具。',
+      pubDate: new Date('2025-10-20'),
+      heroImage: undefined,
+      tags: ['AI', 'NLP', '写作工具'],
+      url: 'https://write.example.com',
+      repo: 'https://github.com/example/project6',
+    },
+  },
+};
+
+// Mock 项目内容
+const mockContent: Record<string, string> = {
+  'example-project': `这是一个使用 Astro 构建的现代网站项目。
+
+## 功能特性
+
+- 响应式设计，适配各种屏幕尺寸
+- 快速加载，优化的性能表现
+- SEO 友好，提升搜索引擎排名
+- 支持 Markdown 内容写作
+
+## 技术栈
+
+- Astro - 现代静态站点生成器
+- TypeScript - 类型安全
+- Tailwind CSS - 实用优先的 CSS 框架`,
+
+  'project-two': `这是一个基于 React 的交互式应用。
+
+## 核心功能
+
+- 实时数据更新
+- 用户认证系统
+- 数据可视化图表
+- 响应式移动端体验
+
+## 技术亮点
+
+- React 18 新特性应用
+- Node.js 后端服务
+- PostgreSQL 数据库
+- Docker 容器化部署`,
+
+  'project-three': `这是一个开源的命令行工具库。
+
+## 主要功能
+
+- 代码生成器
+- 文件处理工具
+- 配置管理
+- 日志分析
+
+## 使用方法
+
+\`\`\`bash
+npm install -g my-tool
+my-tool generate --template react
+\`\`\``,
+};
+
+export async function getStaticPaths() {
+  let projects: CollectionEntry<'projects'>[] = [];
+
+  try {
+    projects = await getCollection('projects');
+  } catch (e) {
+    // 如果获取失败，使用 Mock 数据
+    projects = Object.values(mockProjects);
+  }
+
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+const { project } = Astro.props;
+
+// 尝试渲染内容
+let Content: any = null;
+let renderedContent = '';
+
+try {
+  const rendered = await render(project);
+  Content = rendered.Content;
+} catch (e) {
+  // 如果渲染失败，使用 Mock 内容
+  renderedContent = mockContent[project.id] || `
+这是 **${project.data.title}** 的详细介绍。
+
+## 项目简介
+
+${project.data.description}
+
+## 技术栈
+
+${project.data.tags?.map((tag: string) => `- ${tag}`).join('\n') || '暂无标签信息'}
+  `;
+}
+
+const { title, description, pubDate, updatedDate, heroImage, tags, url, repo } = project.data;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={`${title} - ${SITE_TITLE}`} description={description} />
+  </head>
+  <body class="bg-warm-white min-h-screen">
+    <!-- 导航栏 -->
+    <Nav />
+
+    <!-- 主内容区 -->
+    <main class="max-w-4xl mx-auto px-6 py-12">
+      <!-- 返回链接 -->
+      <nav class="mb-8">
+        <a
+          href="/projects"
+          class="inline-flex items-center text-warm-orange hover:text-warm-brown transition-colors font-serif"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          返回项目列表
+        </a>
+      </nav>
+
+      <article class="project-detail">
+        <!-- 项目头部 -->
+        <header class="mb-8">
+          <!-- 项目图片 -->
+          {heroImage && typeof heroImage === 'object' && 'src' in heroImage ? (
+            <div class="aspect-video rounded-lg overflow-hidden shadow-lg mb-6">
+              <Image
+                src={heroImage}
+                alt={title}
+                class="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div class="aspect-video rounded-lg bg-gradient-to-br from-warm-orange/20 to-warm-brown/20 flex items-center justify-center mb-6">
+              <span class="text-warm-orange text-6xl opacity-60">📁</span>
+            </div>
+          )}
+
+          <!-- 标题和日期 -->
+          <h1 class="text-4xl font-serif text-warm-brown mb-4">{title}</h1>
+
+          <div class="flex flex-wrap items-center gap-4 text-warm-gray text-sm mb-4">
+            <time>
+              发布于 <FormattedDate date={pubDate} />
+            </time>
+            {updatedDate && (
+              <time class="italic">
+                更新于 <FormattedDate date={updatedDate} />
+              </time>
+            )}
+          </div>
+
+          <!-- 描述 -->
+          <p class="text-lg text-warm-gray leading-relaxed">{description}</p>
+        </header>
+
+        <!-- 标签 -->
+        {tags && tags.length > 0 && (
+          <div class="flex flex-wrap gap-2 mb-8">
+            {tags.map((tag: string) => (
+              <span class="bg-warm-orange/20 text-warm-brown px-3 py-1 rounded-full text-sm font-serif">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <!-- 外部链接 -->
+        {(url || repo) && (
+          <div class="flex flex-wrap gap-4 mb-8">
+            {url && (
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 bg-warm-orange text-white px-4 py-2 rounded-lg hover:bg-warm-brown transition-colors"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                访问项目
+              </a>
+            )}
+            {repo && (
+              <a
+                href={repo}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 border-2 border-warm-brown text-warm-brown px-4 py-2 rounded-lg hover:bg-warm-brown hover:text-white transition-colors"
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true" width="16" height="16" fill="currentColor">
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+                查看源码
+              </a>
+            )}
+          </div>
+        )}
+
+        <!-- 项目内容 -->
+        <div class="prose prose-lg max-w-none">
+          {Content ? (
+            <Content />
+          ) : (
+            <div class="project-content text-warm-gray leading-relaxed" set:html={renderedContent} />
+          )}
+        </div>
+      </article>
+
+      <!-- 底部返回链接 -->
+      <nav class="mt-12 pt-8 border-t border-warm-beige">
+        <a
+          href="/projects"
+          class="inline-flex items-center text-warm-orange hover:text-warm-brown transition-colors font-serif"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          返回项目列表
+        </a>
+      </nav>
+    </main>
+
+    <!-- 页脚 -->
+    <Footer />
+  </body>
+</html>
+
+<style>
+  /* 项目详情页内容样式 */
+  .project-content :global(h2) {
+    font-size: 1.5rem;
+    font-family: "Noto Serif SC", serif;
+    color: #6b4423;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .project-content :global(h3) {
+    font-size: 1.25rem;
+    font-family: "Noto Serif SC", serif;
+    color: #6b4423;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .project-content :global(p) {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+
+  .project-content :global(ul),
+  .project-content :global(ol) {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .project-content :global(li) {
+    margin-bottom: 0.5rem;
+  }
+
+  .project-content :global(code) {
+    background-color: #f4e8d9;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+
+  .project-content :global(pre) {
+    background-color: #6b4423;
+    color: #f4e8d9;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+
+  .project-content :global(pre code) {
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .project-content :global(blockquote) {
+    border-left: 4px solid #e07a5f;
+    padding-left: 1rem;
+    font-style: italic;
+    color: #5c5c5c;
+    margin: 1rem 0;
+  }
+
+  .project-content :global(a) {
+    color: #e07a5f;
+    transition: color 0.3s;
+  }
+
+  .project-content :global(a:hover) {
+    color: #6b4423;
+  }
+</style>

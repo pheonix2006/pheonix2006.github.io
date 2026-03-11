@@ -1,0 +1,48 @@
+---
+/**
+ * 导航组件 - 使用 Tailwind CSS 样式，温暖文艺配色
+ * 包含所有主要页面的导航链接
+ */
+const navLinks = [
+  { name: '首页', href: '/' },
+  { name: '项目', href: '/projects' },
+  { name: '博客', href: '/blog' },
+  { name: '关于', href: '/about' },
+  { name: '联系', href: '/contact' },
+];
+
+const currentPath = Astro.url.pathname;
+
+// 判断链接是否激活（精确匹配首页，前缀匹配其他页面）
+function isActive(href: string, path: string): boolean {
+  if (href === '/') {
+    return path === '/';
+  }
+  return path === href || path.startsWith(href + '/');
+}
+---
+
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <a href="/" class="text-xl font-bold text-warm-brown">pheonix2006</a>
+      <ul class="flex items-center gap-6">
+        {navLinks.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class:list={[
+                'transition-colors',
+                isActive(link.href, currentPath)
+                  ? 'text-warm-orange font-medium'
+                  : 'text-warm-gray hover:text-warm-orange',
+              ]}
+            >
+              {link.name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</nav>

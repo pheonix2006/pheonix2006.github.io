@@ -1,0 +1,108 @@
+---
+/**
+ * Mermaid 图表渲染组件
+ * 在客户端渲染 Mermaid 流程图
+ */
+---
+
+<div class="mermaid-container">
+  <slot />
+</div>
+
+<script>
+  // 动态加载 Mermaid 并渲染
+  async function initMermaid() {
+    const containers = document.querySelectorAll('.mermaid-container pre code.language-mermaid');
+
+    if (containers.length === 0) return;
+
+    // 动态导入 mermaid
+    const mermaid = await import('mermaid');
+
+    mermaid.default.initialize({
+      startOnLoad: false,
+      theme: 'neutral',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis',
+      },
+      securityLevel: 'loose',
+    });
+
+    // 渲染每个 mermaid 代码块
+    for (const code of containers) {
+      const pre = code.parentElement;
+      if (!pre) continue;
+
+      const graphDefinition = code.textContent || '';
+      const container = pre.parentElement;
+
+      try {
+        const { svg } = await mermaid.default.render(
+          `mermaid-${Math.random().toString(36).slice(2)}`,
+          graphDefinition
+        );
+
+        // 创建包装器
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mermaid-diagram';
+        wrapper.innerHTML = svg;
+        container?.replaceWith(wrapper);
+      } catch (e) {
+        console.error('Mermaid render error:', e);
+        // 保持原始代码块显示
+        if (container) {
+          container.className = 'mermaid-error';
+        }
+      }
+    }
+  }
+
+  // 页面加载完成后初始化
+  document.addEventListener('DOMContentLoaded', initMermaid);
+
+  // 支持 Astro view transitions
+  document.addEventListener('astro:page-load', initMermaid);
+</script>
+
+<style>
+  .mermaid-container {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+  }
+
+  .mermaid-diagram {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+    border-radius: 0.5rem;
+    border: 1px solid #e5e5e5;
+  }
+
+  .mermaid-diagram :global(svg) {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .mermaid-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    color: #dc2626;
+  }
+
+  /* 美化原始 pre 显示（在 JS 执行前） */
+  .mermaid-container pre code.language-mermaid {
+    display: block;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.875rem;
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+  }
+</style>

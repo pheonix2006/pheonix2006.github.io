@@ -9,6 +9,7 @@ import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Nav from '../../components/Nav.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
+import ExportPdf from '../../components/ExportPdf.astro';
 import { SITE_TITLE } from '../../consts';
 
 // 定义 Mock 项目数据
@@ -299,8 +300,8 @@ const { title, description, pubDate, updatedDate, heroImage, tags, url, repo } =
         </div>
       </article>
 
-      <!-- 底部返回链接 -->
-      <nav class="mt-12 pt-8 border-t border-warm-beige">
+      <!-- 底部操作栏 -->
+      <nav class="mt-12 pt-8 border-t border-warm-beige flex flex-wrap items-center justify-between gap-4">
         <a
           href="/projects"
           class="inline-flex items-center text-warm-orange hover:text-warm-brown transition-colors font-serif"
@@ -310,6 +311,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags, url, repo } =
           </svg>
           返回项目列表
         </a>
+        <ExportPdf filename={title} />
       </nav>
     </main>
 

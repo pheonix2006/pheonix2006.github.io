@@ -9,6 +9,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
 	site: 'https://pheonix2006.github.io',
 	output: 'static',
+	devToolbar: {
+		enabled: false,
+	},
 	integrations: [mdx(), sitemap()],
 	vite: {
 		plugins: [tailwindcss()],

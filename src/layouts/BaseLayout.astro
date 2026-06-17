@@ -1,0 +1,27 @@
+---
+import BaseHead, { type Props as HeadProps } from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Nav from '../components/Nav.astro';
+
+export interface Props extends HeadProps {
+  class?: string;
+}
+
+const { class: className, ...head } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead {...head} />
+  </head>
+  <body>
+    <div class="site-frame">
+      <Nav />
+      <main class:list={['site-main', className]}>
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

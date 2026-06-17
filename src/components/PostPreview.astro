@@ -1,0 +1,34 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { post, headingLevel = 'h2' } = Astro.props;
+const { title, description, pubDate, heroImage, tags } = post.data;
+const Heading = headingLevel;
+---
+
+<article class="content-preview compact">
+  {
+    heroImage && typeof heroImage === 'object' && 'src' in heroImage && (
+      <a class="preview-media" href={`/blog/${post.id}`}>
+        <Image src={heroImage} alt={title} width={720} height={405} loading="lazy" />
+      </a>
+    )
+  }
+  <div class="preview-body">
+    <div class="preview-meta">
+      <FormattedDate date={pubDate} />
+      {tags && tags.length > 0 && <span>{tags.slice(0, 3).join(' / ')}</span>}
+    </div>
+    <Heading class="preview-title">
+      <a href={`/blog/${post.id}`}>{title}</a>
+    </Heading>
+    <p>{description}</p>
+  </div>
+</article>

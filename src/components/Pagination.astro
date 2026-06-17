@@ -1,0 +1,24 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  basePath: string;
+}
+
+const { currentPage, totalPages, basePath } = Astro.props;
+
+const previousHref = currentPage <= 2 ? basePath : `${basePath}/page/${currentPage - 1}`;
+const nextHref = `${basePath}/page/${currentPage + 1}`;
+---
+
+{
+  totalPages > 1 && (
+    <nav class="pagination" aria-label="Pagination">
+      {currentPage > 1 ? <a href={previousHref}>Previous</a> : <span />}
+      <span>
+        Page {currentPage} of {totalPages}
+      </span>
+      {currentPage < totalPages ? <a href={nextHref}>Next</a> : <span />}
+    </nav>
+  )
+}

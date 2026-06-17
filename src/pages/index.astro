@@ -1,43 +1,155 @@
 ---
-/**
- * 首页 - 个人网站入口
- * 使用温暖文艺配色，展示个人介绍、项目、文章和社交链接
- */
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Nav from '../components/Nav.astro';
-import Hero from '../components/Hero.astro';
-import RecentProjects from '../components/RecentProjects.astro';
-import RecentPosts from '../components/RecentPosts.astro';
-import SocialLinks from '../components/SocialLinks.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import siteConfig from '../data/site-config';
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-  </head>
-  <body class="bg-warm-white min-h-screen">
-    <!-- 导航栏 -->
-    <Nav />
+<BaseLayout title={siteConfig.title} description={siteConfig.description}>
+  <article class="resume-home">
+    <header class="resume-header">
+      <div class="resume-name-row">
+        <div>
+          <p class="resume-kicker">{siteConfig.profile.handle}</p>
+          <h1>{siteConfig.profile.englishName}</h1>
+          <p class="resume-chinese-name">{siteConfig.profile.name} · {siteConfig.profile.alternateName}</p>
+        </div>
+        <p class="resume-role">{siteConfig.profile.role}</p>
+      </div>
 
-    <!-- 主内容区 -->
-    <main class="home-main w-full max-w-full p-0">
-      <!-- Hero 区域 -->
-      <Hero avatar="/images/avatar.svg" name="Phoenix" bio="一名热爱技术与创意的开发者" />
+      <p class="resume-summary">
+        {siteConfig.profile.education}。主要做 AI Agent、多智能体编排、RAG、Text2SQL、低代码生成平台和 AI 原生工程流程。
+      </p>
 
-      <!-- 最近项目 -->
-      <RecentProjects />
+      <ul class="resume-contact-line" aria-label="联系方式">
+        <li><a href={`mailto:${siteConfig.contact.email}`}>{siteConfig.contact.email}</a></li>
+        <li>{siteConfig.contact.phone}</li>
+        <li><a href={siteConfig.contact.github} target="_blank" rel="noopener noreferrer">github.com/pheonix2006</a></li>
+        <li>{siteConfig.contact.location}</li>
+      </ul>
+    </header>
 
-      <!-- 最新文章 -->
-      <RecentPosts />
+    <div class="resume-layout">
+      <div class="resume-main-column">
+        <section class="resume-block" aria-labelledby="education">
+          <h2 id="education">教育经历</h2>
+          <div class="resume-list">
+            {
+              siteConfig.education.map((item) => (
+                <article class="resume-item compact-item">
+                  <div class="resume-item-main">
+                    <h3>{item.school}</h3>
+                    <p class="resume-subtitle">{item.degree}</p>
+                    <ul class="inline-list compact">
+                      {item.details.map((detail) => (
+                        <li>{detail}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div class="resume-item-meta">
+                    <span>{item.period}</span>
+                    <span>{item.location}</span>
+                  </div>
+                </article>
+              ))
+            }
+          </div>
+        </section>
 
-      <!-- 社交链接 -->
-      <SocialLinks />
-    </main>
+        <section class="resume-block" aria-labelledby="experience">
+          <h2 id="experience">实习经历</h2>
+          <div class="resume-list">
+            {
+              siteConfig.experience.map((item) => (
+                <article class="resume-item">
+                  <div class="resume-item-main">
+                    <h3>{item.company}</h3>
+                    <p class="resume-subtitle">{item.role}</p>
+                    <ul>
+                      {item.bullets.map((bullet) => (
+                        <li>{bullet}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div class="resume-item-meta">
+                    <span>{item.period}</span>
+                    <span>{item.location}</span>
+                  </div>
+                </article>
+              ))
+            }
+          </div>
+        </section>
 
-    <!-- 页脚 -->
-    <Footer />
-  </body>
-</html>
+        <section class="resume-block" aria-labelledby="selected-projects">
+          <div class="resume-block-heading">
+            <h2 id="selected-projects">项目经历</h2>
+            <a href="/projects">查看项目长文</a>
+          </div>
+          <div class="resume-list">
+            {
+              siteConfig.resumeProjects.map((project) => (
+                <article class="resume-item">
+                  <div class="resume-item-main">
+                    <h3>
+                      <a href={project.href}>{project.title}</a>
+                    </h3>
+                    <p class="resume-subtitle">{project.subtitle}</p>
+                    <p>{project.summary}</p>
+                    <ul class="inline-list compact">
+                      {project.stack.map((tech) => (
+                        <li>{tech}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div class="resume-item-meta">
+                    <span>{project.period}</span>
+                  </div>
+                </article>
+              ))
+            }
+          </div>
+        </section>
+      </div>
+
+      <aside class="resume-side-column">
+        <section class="resume-side-block" aria-labelledby="skills">
+          <h2 id="skills">技术方向</h2>
+          {
+            siteConfig.skillGroups.map((group) => (
+              <section class="resume-skill-group">
+                <h3>{group.title}</h3>
+                <ul>
+                  {group.items.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              </section>
+            ))
+          }
+        </section>
+
+        <section class="resume-side-block" aria-labelledby="honors">
+          <h2 id="honors">荣誉</h2>
+          <ul>
+            {siteConfig.profile.highlights.slice(0, 2).map((highlight) => <li>{highlight}</li>)}
+          </ul>
+        </section>
+
+        <section class="resume-side-block" aria-labelledby="languages">
+          <h2 id="languages">语言</h2>
+          <ul>
+            {siteConfig.languages.map((language) => <li>{language}</li>)}
+          </ul>
+        </section>
+
+        <section class="resume-side-block" aria-labelledby="links">
+          <h2 id="links">链接</h2>
+          <ul>
+            <li><a href="/projects">项目长文</a></li>
+            <li><a href="/blog">技术文章</a></li>
+            <li><a href={siteConfig.contact.github} target="_blank" rel="noopener noreferrer">GitHub</a></li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </article>
+</BaseLayout>

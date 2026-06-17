@@ -1,5 +1,7 @@
 # 个人主页内容管理指南
 
+> 当前站点采用 portfolio/blog 模式。项目详情正文仍维护在 `src/content/projects/*.md`，用于承载面向求职和项目审阅的长文 case study；GitHub 仓库负责源码、README 和开发说明。现阶段没有网页后台，GitHub metadata 自动同步也不属于本阶段范围。
+
 > 本指南教你如何在自己的网站上添加博客、项目和修改个人信息。
 
 ---

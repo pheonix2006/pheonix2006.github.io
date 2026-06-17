@@ -10,10 +10,12 @@ const blog = defineCollection({
 		z.object({
 			title: z.string(),
 			description: z.string(),
-			// Transform string to Date object
 			pubDate: z.coerce.date(),
 			updatedDate: z.coerce.date().optional(),
 			heroImage: z.optional(image()),
+			tags: z.array(z.string()).optional(),
+			repo: z.string().url().optional(),
+			paper: z.string().url().optional(),
 		}),
 });
 
@@ -25,13 +27,12 @@ const projects = defineCollection({
 		z.object({
 			title: z.string(),
 			description: z.string(),
-			// Transform string to Date object
 			pubDate: z.coerce.date(),
 			updatedDate: z.coerce.date().optional(),
 			heroImage: z.optional(image()),
-			// Project specific fields
 			url: z.string().url().optional(),
-			repo: z.string().optional(),
+			urlLabel: z.string().optional(),
+			repo: z.string().url().optional(),
 			tags: z.array(z.string()).optional(),
 		}),
 });

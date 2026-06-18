@@ -757,6 +757,20 @@ img {
   background: var(--surface);
 }
 
+.mermaid-diagram svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-diagram foreignObject div,
+.mermaid-diagram .nodeLabel,
+.mermaid-diagram .edgeLabel {
+  font-family: InterVariable, "Noto Sans SC", system-ui, sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.25 !important;
+}
+
 @media (max-width: 760px) {
   body {
     font-size: 16px;

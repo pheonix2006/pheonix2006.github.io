@@ -659,6 +659,16 @@ img {
   height: auto;
 }
 
+.project-detail-hero {
+  background: #061024;
+}
+
+.project-detail-hero img {
+  height: auto !important;
+  max-height: none;
+  object-fit: contain;
+}
+
 .article-links {
   display: flex;
   flex-wrap: wrap;
@@ -667,6 +677,8 @@ img {
 
 .prose-content {
   max-width: 100%;
+  font-size: 1rem;
+  line-height: 1.82;
 }
 
 .prose-content :where(h2, h3, h4) {
@@ -676,18 +688,27 @@ img {
 
 .prose-content :where(h2) {
   margin-top: 2.4em;
-  margin-bottom: 0.8em;
-  font-size: 1.85rem;
+  margin-bottom: 1.05rem;
+  font-size: 1.76rem;
 }
 
 .prose-content :where(h3) {
   margin-top: 2em;
-  margin-bottom: 0.65em;
+  margin-bottom: 0.9rem;
   font-size: 1.38rem;
 }
 
 .prose-content :where(p, ul, ol, blockquote, table, pre) {
-  margin-bottom: 1.2rem;
+  margin-top: 0;
+  margin-bottom: 1.18rem;
+}
+
+.prose-content :where(ul, ol) {
+  padding-left: 1.35rem;
+}
+
+.prose-content :where(li) {
+  margin-bottom: 0.45rem;
 }
 
 .prose-content :where(table) {

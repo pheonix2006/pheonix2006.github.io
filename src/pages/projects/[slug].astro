@@ -49,12 +49,12 @@ const { title, description, pubDate, updatedDate, heroImage, tags, repo, url, ur
           <div class="article-links">
             {repo && (
               <a class="button primary" href={repo} target="_blank" rel="noopener noreferrer">
-                Visit Project
+                GitHub 仓库
               </a>
             )}
             {url && (
               <a class="button" href={url} target="_blank" rel="noopener noreferrer">
-                {urlLabel ?? 'Visit Demo'}
+                {urlLabel ?? '项目演示'}
               </a>
             )}
           </div>
@@ -64,7 +64,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags, repo, url, ur
 
     {
       heroImage && typeof heroImage === 'object' && 'src' in heroImage && (
-        <figure class="article-hero">
+        <figure class="article-hero project-detail-hero">
           <Image src={heroImage} alt={title} width={heroImage.width} height={heroImage.height} />
         </figure>
       )

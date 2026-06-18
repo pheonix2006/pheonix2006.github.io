@@ -1,56 +1,56 @@
 ---
 title: 'You in Parallel Universes'
-description: '一个 UCUG1505 Art final project：通过手势交互、实时摄像头输入和 LangGraph 多节点 AI pipeline，把观众转化为平行宇宙漫画主角。'
+description: 'UCUG1505 Art final project：一个用手势、摄像头和多节点 AI pipeline 生成个性化平行宇宙漫画的互动装置。'
 pubDate: 2026-06-17
 heroImage: ../../assets/you-in-parallel-universes-poster.png
 repo: https://github.com/pheonix2006/You-in-parallel-universes
 url: https://www.bilibili.com/video/BV1JFLV6yEEF/
-urlLabel: Watch Demo
+urlLabel: 观看 Demo
 tags: ['AI Agent', 'LangGraph', 'FastAPI', 'React', 'MediaPipe', 'SSE', 'Generative AI', 'Interactive Installation']
 ---
 
-## 项目简介
+## 项目是什么
 
-**You in Parallel Universes** 是我在 **UCUG1505 Art final project** 里独立完成的作品。这门课最后我拿到了 **A**。项目的玩法很直接：观众站到摄像头前，用手势抽一个世界、确认拍照，然后系统把照片里的表情、姿态、衣服和背景当成故事线索，生成一页关于“平行宇宙里的另一个自己”的漫画。
+You in Parallel Universes 是我在 UCUG1505 Art final project 里做的一件 AI 互动装置。课程最后成绩是 A。
 
-这门课的要求很明确：作品不能依赖键盘和鼠标，要像展览里的装置一样，让观众走近以后就能参与。所以我没有把它做成一个常规网页，也没有设计复杂导航，而是把体验压到几个现场最容易理解的动作里：看摄像头、做手势、等倒计时、看生成过程，最后把作品留在 gallery 里继续展示。
+观众站到摄像头前，不需要键盘，也不需要鼠标，只用几个手势就能完成一次体验：抽取一个视觉世界，确认拍照，等待系统生成故事和漫画。最后出现的不是一张普通自拍，而是一页关于“平行宇宙里的另一个自己”的多格漫画。模型会把照片里的表情、姿态、衣服和背景都当成线索，写出一个短故事，再把它画出来。
 
-最后做出来的版本主要有几块：
+这个项目从概念设计、前后端实现、LangGraph pipeline、prompt 调试、模型接入、测试到现场调试，都是我一个人完成的。
 
-- 手势驱动的无键鼠交互：通过 OK、peace、open palm 完成拍照、抽主题、确认、取消和唤醒。
-- 个性化漫画生成：把观众照片中的表情、姿态、服装和场景作为故事线索。
-- LangGraph 多节点 AI pipeline：用 DAG 编排脚本生成、prompt 构造、压缩、图像生成、重试和保存。
-- SSE 流式体验：将 theme、thinking、script、comic 分阶段推给前端，避免长时间黑盒等待。
-- 节点级输入输出追踪：通过 LangSmith 和本地 JSONL trace 保留每个节点的输入、输出、reasoning 和耗时。
+## 为什么要做成这样
 
-## 从谚语漫画到平行宇宙
+这门课是艺术展示课，作品要面向现场观众，而不是面向坐在电脑前慢慢操作的用户。课程要求里还有一个很重要的限制：不能依赖键盘、鼠标这类常规输入。这个限制反而决定了项目的形态。
 
-项目早期方案是“用户照片 + 随机谚语 + 漫画故事”。这个方向看起来有文学性：谚语本身包含隐喻和故事张力，观众照片可以被嵌入到故事里。但实际设计时我发现它有明显的问题：
+如果把它做成普通网页，观众要读说明、点按钮、上传照片，体验会很像一个工具。但展览现场的参与方式应该更直接：人走到装置前，系统能看见他；他做一个手势，系统就给出反馈；拍照、生成、展示都在同一个空间里完成。
 
-- 随机谚语不一定适合当前观众的表情、姿势或场景。
-- 故事必须围绕谚语解释展开，限制了模型的创造空间。
-- 漫画效果取决于“谚语是否刚好有趣”，边界条件太多。
+所以我把交互压缩成一条很短的路径：摄像头画面、手势确认、倒计时、流式生成、gallery 轮播。读者可以把它理解成一个“站在屏幕前就能玩的 AI 漫画拍照亭”，只是后面的生成流程比普通拍照亭复杂得多。
 
-后来我把核心约束从“解释某个谚语”改成“让 AI 根据观众当下状态生成另一个世界里的自己”。这样模型可以直接利用照片中的线索：表情、服装、动作、同行者、背景氛围，再结合主题世界生成故事。这个调整让作品从一个固定题材生成器，变成了一个更开放的身份想象装置。
+## 我中途改掉了原方案
 
-这也是我在这个项目里最重要的产品判断之一：当原始概念限制了生成效果时，应该及时改变问题定义，而不是继续在错误方向上调 prompt。
+最早的想法不是“平行宇宙”。我一开始想做的是“用户照片 + 随机谚语 + 漫画故事”：谚语里通常有隐喻和情节，听起来很适合拿来生成漫画。
 
-## 交互流程
+但做了一段时间后，我发现这个方向不太对。随机谚语不一定适合当前观众。比如一个人的表情、动作、衣服、背景都很有特点，但谚语本身如果没有给模型留下足够空间，生成结果反而会被限制住。故事要先解释谚语，再把用户塞进去，很多时候像是在硬凑。
 
-实际使用时，流程是这样的：
+后来我把问题改成：不要求模型解释一个固定文本，而是让它从观众当下的状态出发，想象“另一个世界里的这个人”。这样照片本身就变成了故事的入口。有人穿得正式，模型可以把他写成星际会议里的代表；有人表情夸张，模型可以把这个表情变成漫画冲突；背景里有同伴，也可以进入故事。
 
-1. 观众走到摄像头前，系统进入相机准备状态。
-2. 观众用 peace 手势进入主题抽取，也可以直接用 OK 手势开始拍照。
-3. 主题抽取以抽卡/老虎机式动画呈现，OK 确认，peace 重抽，open palm 取消。
-4. 系统进入 3 秒倒计时，抓拍当前视频帧。
-5. 前端通过 SSE 接收后端生成过程：主题、thinking 文本、脚本和最终漫画。
-6. 漫画完成后展示结果；无人操作一段时间后，系统进入 gallery 模式轮播历史作品。
+这个改动对最终效果影响很大。它不是简单换了一个主题名，而是把项目从“围绕谚语做生成”改成了“围绕观众本人做生成”。
 
-这里我不想做一个让用户填表的网页。观众在现场停留的时间很短，所以每一步都要有反馈：相机画面上的手部骨架告诉他系统已经识别到手，进度环告诉他动作正在确认，倒计时和闪白告诉他照片已经拍下，thinking 文本和 gallery 则把等待时间变成展示的一部分。
+## 一次完整体验
 
-## 系统架构
+现场使用时，流程大概是这样：
 
-代码层面，我把它拆成前端交互和后端生成两部分：
+1. 观众走到摄像头前，页面进入相机状态。
+2. 系统识别手势。peace 可以进入主题抽取，OK 可以确认，open palm 可以取消或唤醒。
+3. 主题抽取用类似抽卡的动画呈现，观众可以确认，也可以重新抽。
+4. 确认后进入 3 秒倒计时，前端抓拍当前画面。
+5. 后端开始生成，前端通过 SSE 逐步显示主题、思考文本、脚本和漫画结果。
+6. 漫画完成后进入展示页；一段时间无人操作后，系统会进入 gallery，轮播历史作品。
+
+这里最容易被忽略的是反馈。手势交互不像鼠标点击那么确定，观众也不一定知道系统有没有看懂自己。所以我加了手部骨架覆盖、进度环、倒计时闪白、生成中的文本提示和 gallery。它们不是装饰，而是在告诉观众：系统看到你了、动作正在确认、照片已经拍下、故事正在生成、生成结果会留在现场继续展示。
+
+## 系统怎么拆
+
+代码上我把项目拆成前端交互层、后端生成层和模型 provider 层。前端负责摄像头、手势识别和页面状态；后端负责启动生成流程、调用模型、记录 trace 和保存结果；provider 层把不同模型服务包起来，避免整个系统绑死在一个图像生成接口上。
 
 ```mermaid
 flowchart TB
@@ -62,7 +62,7 @@ flowchart TB
         SSE["SSE Client"]
     end
 
-    subgraph Backend["后端服务层"]
+    subgraph Backend["后端生成层"]
         FastAPI["FastAPI /api/generate"]
         Graph["LangGraph Pipeline"]
         Trace["LangSmith + JSONL Trace"]
@@ -75,7 +75,7 @@ flowchart TB
     end
 
     Camera --> MediaPipe --> Gesture --> State
-    State -->|"captured_image + theme_id"| FastAPI
+    State -->|"captured image + theme id"| FastAPI
     FastAPI --> Graph
     Graph --> LLM
     Graph --> Image
@@ -85,98 +85,72 @@ flowchart TB
     SSE --> State
 ```
 
-前端管现场交互和状态切换，后端管 AI pipeline、模型调用、trace 和结果保存。这样写起来麻烦一些，但好处很明显：每一步都能单独看、单独换、单独调。
+这个拆法的好处是，每一层的问题都能分开看。前端手势误触，不应该和模型生成失败混在一起；图像 provider 不稳定，也不应该影响主题抽取和前端状态机的逻辑。
 
-## 前端：为互动装置设计的状态机
+## 前端：把手势做成可用的交互
 
-前端使用 React、TypeScript、Vite 和 Tailwind 构建。核心不是页面路由，而是一个由 `AppState` 驱动的状态机：
+前端用 React、TypeScript、Vite 和 Tailwind 写。它的核心不是页面路由，而是状态机：相机准备、主题抽取、倒计时、生成中、漫画完成、gallery。摄像头组件在这些状态之间尽量保持挂载，避免反复请求权限和重启视频流。
 
-- `CAMERA_READY`：摄像头准备和手势识别。
-- `THEME_DRAW`：主题抽取与确认。
-- `COUNTDOWN`：倒计时抓拍。
-- `GENERATING`：流式展示 AI 生成过程。
-- `COMIC_READY`：展示最终漫画。
-- `GALLERY`：空闲时轮播历史作品。
+手势识别分两层。第一层用 MediaPipe Hands 的 21 个手部关键点做几何判断，识别 OK、peace 和 open palm。第二层才是交互确认：debounce 用来过滤短暂误判，hold 用来要求用户持续做出高风险动作，grace 用来处理短暂丢帧，cooldown 用来避免一个动作连续触发多次。
 
-手势识别分为两层。第一层用 MediaPipe Hands 提供的 21 个 hand landmarks 做几何规则判断，识别 OK、peace、open palm。第二层再做交互确认：500ms debounce、2s hold、300ms grace 和 1s cooldown，避免误触、短暂丢帧和重复触发。
+这部分看起来像调参数，但它决定了作品能不能在现场使用。如果观众稍微抖一下手就拍照，体验会很糟；如果每个动作都要等太久，大家又会觉得系统没有反应。所以我把不同动作区分开：确认拍照这类操作更保守，抽主题和取消这类操作可以更轻一些。
 
-这个设计体现了展览场景的要求：观众不一定熟悉界面，也不会精确点击按钮，所以高风险动作必须长按确认，低风险动作可以即时触发。同时，摄像头组件在多个状态中保持挂载，避免反复请求权限和重启视频流造成体验中断。
+## 后端：不是只调一次模型
 
-## 后端：LangGraph 多节点 AI Pipeline
-
-后端使用 FastAPI 暴露统一的 `/api/generate` SSE 接口。这个接口不是简单调用一次模型，而是启动一个 LangGraph pipeline：
+后端用 FastAPI 暴露 `/api/generate`，前端通过 SSE 接收生成进度。这里没有把逻辑写成“一次请求一个大 prompt”，而是用 LangGraph 拆成多个节点。
 
 ```mermaid
 flowchart LR
-    Start["START"] --> Script["script_node<br/>生成故事脚本"]
-    Script --> Prompt["prompt_node<br/>构造漫画 prompt"]
-    Prompt --> Check{"prompt token 超限?"}
-    Check -->|是| Condense["condense_node<br/>压缩 prompt"]
-    Check -->|否| Comic["comic_node<br/>生成漫画"]
+    Start["START"] --> Script["生成漫画脚本"]
+    Script --> Prompt["构造图像 prompt"]
+    Prompt --> Check{"prompt 是否过长?"}
+    Check -->|是| Condense["压缩 prompt"]
+    Check -->|否| Comic["生成漫画"]
     Condense --> Comic
-    Comic --> Route{"生成成功?"}
-    Route -->|成功| Save["save_node<br/>保存图片与历史"]
-    Route -->|敏感内容| Revise["revise_node<br/>改写后重试"]
+    Comic --> Route{"生成是否成功?"}
+    Route -->|成功| Save["保存图片和历史"]
+    Route -->|被拦截| Revise["改写后重试"]
     Revise --> Prompt
     Save --> End["END"]
 ```
 
-这个 DAG 里每个节点都有明确职责：
+实际流程里，脚本生成、prompt 构造、prompt 压缩、图像生成、失败改写和结果保存都有独立节点。前端看到的 theme、thinking、script、comic、done/error 这些事件，也是从这条流程里逐步发出来的。
 
-- `script_node`：根据用户照片和主题世界生成 3-6 格漫画脚本。
-- `prompt_node`：把故事脚本、主题视觉风格和布局规则组合成图像生成 prompt。
-- `condense_node`：当 prompt 超过 token budget 时，进行压缩或截断。
-- `comic_node`：调用图像生成 provider，支持图生图和重试。
-- `revise_node`：遇到敏感内容拦截时改写 prompt 并重试。
-- `save_node`：保存漫画、缩略图和历史记录。
+我这么做不是为了把架构画复杂，而是为了调试。生成式项目的问题经常不在最后一步：可能是照片信息没有被脚本用上，可能是脚本很好但 prompt 太长，可能是图像 provider 拦截了某个词，也可能是结果保存失败。如果所有逻辑都塞进一个函数，出错时只能猜。拆成节点后，每一步的输入、输出和耗时都能单独回看。
 
-前端通过 SSE 接收 `theme -> thinking -> script -> comic -> done/error`。这让用户可以看到生成过程中的中间状态，而不是面对一个不确定的 loading spinner。
+## 我最重视的是可观测性
 
-## 可观测性：AI 系统不能是黑盒
+这个项目里，我最在意的不是“能不能调用模型”，而是 AI pipeline 出问题时能不能知道问题在哪里。
 
-这个项目里我最看重的不是某个单点实现，而是 AI pipeline 的架构方式。
+多节点生成系统如果没有 trace，很快就会变成黑盒。模型看起来输出得不错，但真正跑起来会出现很多小问题：某个节点忘了传字段，某次生成结果没有保存，某个 provider 返回了不稳定的错误，或者 prompt 被改到后面已经偏离了最初目标。没有记录的话，人只能反复充当反馈器：跑一次，发现问题，描述给模型，再让模型改。
 
-在多节点 AI 系统里，如果没有节点级输入输出、日志和 trace，整个系统就会变成黑盒：模型看起来“写得不错”，但一运行就暴露大量问题；开发者只能充当人工反馈器，不断测试、报错、再让模型修改。这样的迭代效率很低，也无法稳定定位问题。
+所以我在后端保留了节点级记录：每个节点的输入、输出、reasoning、时间戳和耗时都会被写下来。外部可以接 LangSmith，本地也有 JSONL trace，方便离线检查。API 层也保留 request id、慢请求日志和错误分类。
 
-因此我在这个项目里把可观测性作为基础能力设计：
+这和我后来做 Agent / 多节点 DAG 的经验是一致的：先建立 feedback loop，再谈自动化迭代。系统必须能告诉开发者“哪一步出了什么问题”，否则 AI 写再多代码，最后还是要靠人肉验收来补反馈。
 
-- 每个节点保留输入、输出、reasoning、时间戳和耗时。
-- 通过 LangSmith 接入外部 tracing。
-- 通过本地 JSONL trace 保留可离线分析的运行记录。
-- 在 API 层保留 request id、慢请求日志和错误分类。
-- 用测试覆盖 pipeline contract、provider factory、prompt 节点、history、trace store 等关键模块。
+## 模型接入和主题系统
 
-我的理解是：AI Agent 或多节点 DAG 开发，必须先建立 feedback loop。只有能看清每个节点发生了什么，模型和开发者才有办法调试、复盘和迭代。否则所谓“让 AI 写代码”只是把问题延后到了人工验收阶段。
+LLM 侧使用 OpenAI-compatible chat completions，默认通过 OpenRouter 接入；图像生成侧做了 provider factory，支持 Replicate、DashScope 和 OpenRouter image provider。生成式项目很容易受模型能力、价格、速度和稳定性影响，所以我不想把项目写死在一个服务上。
 
-## Provider 抽象与生成策略
+主题系统被抽象成 ThemePack。每个主题包含世界设定、视觉风格、图标和颜色。仓库里有 17 个主题定义。对外介绍时，我更倾向于把它们描述成“奇幻狩猎、魔法校园、赛博城市、复古游戏、东方水墨、太空歌剧”这类泛化主题，而不是强调具体商业 IP 名称。
 
-项目中 LLM 使用 OpenAI-compatible chat completions，默认通过 OpenRouter 接入模型；图像生成层抽象为 provider factory，支持 Replicate、DashScope 和 OpenRouter image provider。这样做的原因是生成式项目非常依赖外部模型能力、成本、速度和稳定性，不能把系统写死在单一 provider 上。
+## 测试和边界
 
-主题系统也被抽象成 `ThemePack`：每个主题包含世界设定、视觉风格、图标和颜色。当前代码中有 17 个主题定义。公开介绍时我会更倾向把它们描述成“奇幻狩猎、魔法校园、赛博城市、复古游戏、东方水墨、太空歌剧”等泛化主题，而不是强调具体商业 IP 名称。
+这个仓库里保留了比较完整的测试资产。后端有 unit tests 覆盖 schema、配置、prompt、节点、provider、storage 和 trace；也有 integration tests 覆盖 pipeline contract、trace 集成和图像生成流程。真实外部 API 的 smoke test 做了显式开关，避免默认运行时产生调用成本。前端用 Vitest 测手势算法、gesture confirmation、组件状态和 API 层，Playwright 用来覆盖核心交互路径。
 
-## 测试与工程边界
+它也还有一些没有包装好的地方。README 和实际端口配置有过漂移；仓库当前没有 CI/CD、Docker 或公网部署配置；如果要把它从课程作品变成公开长期运行的系统，还需要补隐私告知、数据删除、第三方模型处理边界等内容。
 
-这个项目保留了较完整的测试资产：
+这些限制我不会在作品介绍里藏起来。它已经完成了课程展示所需的闭环，但还不是一个可以直接长期上线的产品。
 
-- 后端 unit tests 覆盖 schema、配置、prompt、节点、provider、storage、trace 等模块。
-- 后端 integration tests 覆盖 pipeline contract、trace 集成和图生成流程。
-- live smoke tests 使用显式开关，避免默认调用真实外部 API。
-- 前端 Vitest 覆盖手势算法、gesture confirmation、组件状态和 API 层。
-- Playwright E2E 用于核心交互路径验证。
+## 结果和我带走的经验
 
-同时，这个项目也有清晰的后续改进空间。README 与实际端口配置存在漂移；当前仓库没有 CI/CD、Docker 或公网部署配置；展览现场的隐私告知、数据删除、第三方模型处理边界也需要在正式公开部署前补齐。这些不是我想掩盖的问题，而是生成式互动系统从课程作品走向生产应用时必须补上的工程边界。
+项目最终作为 UCUG1505 Art final project 完成，课程成绩是 A。对我来说，最重要的收获有三个。
 
-## 结果与反思
+第一是产品判断。原来的谚语方案不是完全不能做，但它把模型限制在一个不自然的问题里。改成“平行宇宙里的另一个自己”后，照片里的真实线索终于能变成故事的一部分。
 
-这个项目最终作为 UCUG1505 Art final project 完成，并获得课程 **A**。从效果上看，开放式“平行宇宙”叙事比早期谚语方案更适合生成式 AI：模型可以根据用户的真实照片线索生成更自然、更有趣的故事，而不是被固定文本题材限制住。
+第二是交互设计。艺术展示里的用户不会像使用后台系统那样耐心操作，所以手势、倒计时、流式反馈和 gallery 都要服务于现场体验。
 
-这个项目对我最大的价值有三点：
-
-1. **产品判断**：当原始谚语方案效果受限时，及时改变问题定义，转向更适合 AI 发挥的开放叙事。
-2. **交互设计**：围绕艺术展示课的无键鼠要求，设计手势、倒计时、流式反馈和 gallery 的现场体验。
-3. **AI 工程架构**：用 LangGraph、SSE、provider abstraction 和 trace，把生成式系统从黑盒调用拆成可观察、可调试、可迭代的多节点 pipeline。
-
-项目从概念设计、方向调整、前后端实现、LangGraph pipeline、prompt 调试、模型接入、测试到现场调试，均由我独立完成。
+第三是 AI 工程架构。这个项目让我更明确地意识到，多节点 AI 系统不能只看最后输出。LangGraph、SSE、provider abstraction 和 trace 这些东西放在一起，才让一个生成流程变得可观察、可调试、可替换。
 
 ## 链接
 

@@ -84,7 +84,7 @@ test.describe('Dante shell migration', () => {
     await expect(page.getByRole('heading', { name: 'RAG 检索增强系统与评测框架' })).toBeVisible();
     await expect(page.getByRole('heading', { name: '系统架构' })).toBeVisible();
     await expect(page.getByRole('heading', { name: '检索层：混合向量检索引擎' })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Visit Project|source|源码|GitHub Repo|查看源码/i }).first()).toHaveAttribute(
+    await expect(page.getByRole('link', { name: /GitHub 仓库|Visit Project|source|源码|GitHub Repo|查看源码/i }).first()).toHaveAttribute(
       'href',
       /github\.com\/pheonix2006\/milvus_test/
     );
@@ -103,9 +103,9 @@ test.describe('Dante shell migration', () => {
     await expect(page.getByText(/SSE/).first()).toBeVisible();
     await expect(page.getByText(/节点级输入输出|trace|可观测/).first()).toBeVisible();
     await expect(page.getByText(/形成一个可以站在装置前直接参与的闭环/)).toHaveCount(0);
-    await expect(page.getByText(/这门课的要求很明确/)).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Visit Project' })).toHaveAttribute('href', /github\.com\/pheonix2006\/You-in-parallel-universes/);
-    await expect(page.getByRole('link', { name: 'Watch Demo' })).toHaveAttribute('href', /bilibili\.com/);
+    await expect(page.getByText(/课程要求里还有一个很重要的限制/)).toBeVisible();
+    await expect(page.getByRole('link', { name: 'GitHub 仓库' })).toHaveAttribute('href', /github\.com\/pheonix2006\/You-in-parallel-universes/);
+    await expect(page.getByRole('link', { name: '观看 Demo' })).toHaveAttribute('href', /bilibili\.com/);
     const poster = page.getByRole('img', { name: /You in Parallel Universes/ }).first();
     await expect(poster).toBeVisible();
     const posterRatio = await poster.evaluate((img) => {
@@ -114,7 +114,7 @@ test.describe('Dante shell migration', () => {
     });
     expect(posterRatio).toBeGreaterThan(0.9);
 
-    const introHeadingGap = await page.getByRole('heading', { name: '项目简介' }).evaluate((heading) => {
+    const introHeadingGap = await page.getByRole('heading', { name: '项目是什么' }).evaluate((heading) => {
       const rect = heading.getBoundingClientRect();
       const next = heading.nextElementSibling?.getBoundingClientRect();
       return next ? next.top - rect.bottom : 0;

@@ -43,6 +43,18 @@ import siteConfig from '../data/site-config';
                         <li>{detail}</li>
                       ))}
                     </ul>
+                    {
+                      item.proofs.length > 0 && (
+                        <p class="resume-proof-links" aria-label={`${item.school} 相关证明`}>
+                          <span>记录</span>
+                          {item.proofs.map((proof) => (
+                            <a href={proof.href} target="_blank" rel="noopener noreferrer">
+                              {proof.label}
+                            </a>
+                          ))}
+                        </p>
+                      )
+                    }
                   </div>
                   <div class="resume-item-meta">
                     <span>{item.period}</span>
@@ -68,6 +80,18 @@ import siteConfig from '../data/site-config';
                         <li>{bullet}</li>
                       ))}
                     </ul>
+                    {
+                      item.proofs.length > 0 && (
+                        <p class="resume-proof-links" aria-label={`${item.company} 相关证明`}>
+                          <span>证明</span>
+                          {item.proofs.map((proof) => (
+                            <a href={proof.href} target="_blank" rel="noopener noreferrer">
+                              {proof.label}
+                            </a>
+                          ))}
+                        </p>
+                      )
+                    }
                   </div>
                   <div class="resume-item-meta">
                     <span>{item.period}</span>
@@ -125,6 +149,29 @@ import siteConfig from '../data/site-config';
               </section>
             ))
           }
+        </section>
+
+        <section class="resume-side-block" aria-labelledby="ai-tooling">
+          <h2 id="ai-tooling">AI 工具投入</h2>
+          <ul class="tooling-investment-list">
+            {
+              siteConfig.aiToolingInvestments.map((tool) => (
+                <li>
+                  <strong>{tool.name}</strong>
+                  <span>{tool.cost}</span>
+                  <p>{tool.summary}</p>
+                  <p class="tooling-screenshot-links" aria-label={`${tool.name} 截图记录`}>
+                    <span>截图</span>
+                    {tool.screenshots.map((screenshot) => (
+                      <a href={screenshot.href} target="_blank" rel="noopener noreferrer">
+                        {screenshot.label}
+                      </a>
+                    ))}
+                  </p>
+                </li>
+              ))
+            }
+          </ul>
         </section>
 
         <section class="resume-side-block" aria-labelledby="honors">

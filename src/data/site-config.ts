@@ -7,6 +7,11 @@ export type SocialLink = NavLink & {
   label: string;
 };
 
+export type ProofLink = {
+  label: string;
+  href: string;
+};
+
 export const siteConfig = {
   website: 'https://pheonix2006.github.io',
   title: '李行健｜个人作品集',
@@ -40,6 +45,7 @@ export const siteConfig = {
       period: '2024.09 - 2028.07',
       location: '广州',
       details: ['总 GPA：3.5/4.3', '专业 GPA：3.7/4.3', '本科入学全额奖学金', '2025-2026 春季学期 Dean\'s List'],
+      proofs: [] satisfies ProofLink[],
     },
     {
       school: '中国人民大学附属中学',
@@ -47,6 +53,12 @@ export const siteConfig = {
       period: '2020.09 - 2024.06',
       location: '北京',
       details: ['高考 658 分', '北京市前 2000 名'],
+      proofs: [
+        {
+          label: '高考成绩截图',
+          href: '/images/proofs/gaokao-score-2024.png',
+        },
+      ] satisfies ProofLink[],
     },
   ],
   experience: [
@@ -56,6 +68,7 @@ export const siteConfig = {
       period: '2026.05 - 至今',
       location: '深圳',
       bullets: ['参与多智能体系统和低代码生成平台的研发。', '关注 Agent 编排、工具调用和面向真实业务场景的 AI 工作流。'],
+      proofs: [] satisfies ProofLink[],
     },
     {
       company: 'Cummins China',
@@ -63,6 +76,12 @@ export const siteConfig = {
       period: '2025.08 - 2026.05',
       location: '北京',
       bullets: ['负责 EIT 与 OBD 项目中的 LangGraph RAG 工作流，包含多路检索和自动化评测。', '搭建并测试面向财务、IoV/IT 场景的多智能体 Text2SQL 流程，并用图表呈现分析结果。', '使用 Selenium 和 PyGUI 实现 RPA 自动化流程，优化重复业务操作。'],
+      proofs: [
+        {
+          label: '实习证明',
+          href: '/files/certificates/cummins-china-internship-certificate-2026-redacted.pdf',
+        },
+      ] satisfies ProofLink[],
     },
   ],
   resumeProjects: [
@@ -107,6 +126,30 @@ export const siteConfig = {
     {
       title: '数据与交互',
       items: ['Text2SQL', 'Code Agent', 'Schema Linking', 'VLMs', 'PaddleOCR', '数据合成'],
+    },
+  ],
+  aiToolingInvestments: [
+    {
+      name: 'ChatGPT Pro / Codex',
+      cost: '$200 / 月',
+      summary: '使用 Pro 前沿模型和 Codex 最大访问权限，支撑代码阅读、重构、测试验证和方案推演。',
+      screenshots: [
+        {
+          label: 'ChatGPT Pro 截图',
+          href: '/images/proofs/chatgpt-pro-codex-subscription.png',
+        },
+      ] satisfies ProofLink[],
+    },
+    {
+      name: 'GLM Max Coding Plan',
+      cost: '¥469 / 月',
+      summary: '接入 Claude Code 使用，用于中大型 Repo 深度开发、长上下文代码理解和多模型交叉验证。',
+      screenshots: [
+        {
+          label: 'GLM Max 截图',
+          href: '/images/proofs/bigmodel-glm-max-subscription.png',
+        },
+      ] satisfies ProofLink[],
     },
   ],
   languages: ['英语：流利，课程教学语言', '中文：母语'],

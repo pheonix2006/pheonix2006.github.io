@@ -29,6 +29,31 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <li>{detail}</li>
             ))}
           </ul>
+          {
+            item.proofs.length > 0 && (
+              <>
+                <p class="proof-link-inline">
+                  记录：
+                  {item.proofs.map((proof, index) => (
+                    <>
+                      {index > 0 && ' / '}
+                      <a href={proof.href} target="_blank" rel="noopener noreferrer">{proof.label}</a>
+                    </>
+                  ))}
+                </p>
+                <div class="proof-screenshot-grid" aria-label={`${item.school} 证明截图`}>
+                  {item.proofs.map((proof) => (
+                    <figure>
+                      <a href={proof.href} target="_blank" rel="noopener noreferrer">
+                        <img src={proof.href} alt={proof.label} loading="lazy" />
+                      </a>
+                      <figcaption>{proof.label}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </>
+            )
+          }
         </section>
       ))
     }
@@ -48,6 +73,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <li>{bullet}</li>
             ))}
           </ul>
+          {
+            item.proofs.length > 0 && (
+              <p class="proof-link-inline">
+                证明：
+                {item.proofs.map((proof, index) => (
+                  <>
+                    {index > 0 && ' / '}
+                    <a href={proof.href} target="_blank" rel="noopener noreferrer">{proof.label}</a>
+                  </>
+                ))}
+              </p>
+            )
+          }
         </section>
       ))
     }
@@ -65,6 +103,41 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </section>
       ))
     }
+
+    <h2>AI Tooling Investment</h2>
+    <p>
+      我把 AI 工具订阅当作工程环境的一部分持续记录和复盘，重点关注它们是否能稳定提升代码理解、自动化验证、文档沉淀和复杂项目推进效率。
+    </p>
+    <ul class="tooling-prose-list">
+      {
+        siteConfig.aiToolingInvestments.map((tool) => (
+          <li>
+            <strong>{tool.name}</strong>：{tool.cost}。{tool.summary}
+            <span class="proof-link-inline">
+              {' '}截图：
+              {tool.screenshots.map((screenshot, index) => (
+                <>
+                  {index > 0 && ' / '}
+                  <a href={screenshot.href} target="_blank" rel="noopener noreferrer">{screenshot.label}</a>
+                </>
+              ))}
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="tooling-screenshot-grid" aria-label="AI 工具订阅截图记录">
+      {
+        siteConfig.aiToolingInvestments.map((tool) => (
+          <figure>
+            <a href={tool.screenshots[0].href} target="_blank" rel="noopener noreferrer">
+              <img src={tool.screenshots[0].href} alt={`${tool.name} 订阅截图`} loading="lazy" />
+            </a>
+            <figcaption>{tool.name}</figcaption>
+          </figure>
+        ))
+      }
+    </div>
 
     <h2>Languages</h2>
     <ul>

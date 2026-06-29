@@ -360,6 +360,49 @@ img {
   list-style: none;
 }
 
+.tooling-investment-list {
+  gap: 12px !important;
+}
+
+.tooling-investment-list li {
+  display: grid;
+  gap: 3px;
+}
+
+.tooling-investment-list strong {
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.3;
+}
+
+.tooling-investment-list span {
+  color: var(--accent-strong);
+  font-size: 0.82rem;
+}
+
+.tooling-investment-list p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.tooling-screenshot-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: center;
+}
+
+.tooling-screenshot-links span {
+  color: var(--muted);
+}
+
+.tooling-screenshot-links a {
+  color: var(--text);
+  text-decoration: none;
+}
+
 .resume-skill-group {
   display: grid;
   gap: 7px;
@@ -418,6 +461,31 @@ img {
 .resume-item-main > ul:not(.inline-list) {
   padding-left: 1.2rem;
   color: var(--muted);
+}
+
+.resume-proof-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.resume-proof-links span {
+  color: var(--muted);
+}
+
+.resume-proof-links a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.resume-proof-links a::after {
+  color: var(--muted);
+  content: " PDF";
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
 }
 
 .resume-item-meta {
@@ -709,6 +777,79 @@ img {
 
 .prose-content :where(li) {
   margin-bottom: 0.45rem;
+}
+
+.proof-link-inline {
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.proof-link-inline a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.tooling-prose-list strong {
+  color: var(--text);
+}
+
+.tooling-screenshot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 10px 0 1.18rem;
+}
+
+.proof-screenshot-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  max-width: 520px;
+  margin: 10px 0 1.18rem;
+}
+
+.tooling-screenshot-grid figure {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 0;
+  background: var(--surface);
+}
+
+.proof-screenshot-grid figure {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 0;
+  background: var(--surface);
+}
+
+.tooling-screenshot-grid img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: top left;
+}
+
+.proof-screenshot-grid img {
+  width: 100%;
+  height: auto;
+}
+
+.tooling-screenshot-grid figcaption {
+  border-top: 1px solid var(--border);
+  padding: 8px 10px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.proof-screenshot-grid figcaption {
+  border-top: 1px solid var(--border);
+  padding: 8px 10px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.4;
 }
 
 .prose-content :where(table) {
